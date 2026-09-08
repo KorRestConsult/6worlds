@@ -23,6 +23,9 @@
     return (state.assignedTests||[]).some(t=>t.employeeId===employeeId&&!isAttestation(t)&&t.area===area&&t.block===block&&t.status!=='done')
   };
   pendingTestsFor=function(id){return (state.assignedTests||[]).filter(t=>t.employeeId===id&&!isAttestation(t)&&t.status!=='done')};
+  completedTestsFor=function(employeeId){return (state.assignedTests||[]).filter(t=>t.employeeId===employeeId&&!isAttestation(t)&&t.status==='done').sort((a,b)=>String(b.completedAt||'').localeCompare(String(a.completedAt||'')))};
+  latestCompletedTest=function(employeeId,area,block){return completedTestsFor(employeeId).find(t=>(!area||t.area===area)&&(!block||t.block===block))||null};
+  managerTrainingResults=function(e){const rows=completedTestsFor(e.id);if(!rows.length)return '<div class="empty">Тренировочных тестов пока нет.</div>';return `<div class="test-results-card">${rows.slice(0,8).map(t=>`<div class="test-result-row"><div><b>${esc(t.block)}</b><small>${t.area==='kitchen'?'Кухня':'Бар'} · ${esc(t.completedAt||'')} · тренировочный тест</small></div><div class="test-result-score">${t.correct}/${t.total}</div></div>`).join('')}</div>`};
 
   knowledgeRows=function(e,area){return blocksFor(area).map(b=>{
     const r=rating(e,area,b),n=atts(e,area,b).length,key=knowledgeKey(area,b),open=state.expandedKnowledgeKey===key,enc=encodeURIComponent(b),
