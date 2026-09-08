@@ -51,10 +51,19 @@
     state.activeAttestation={assignmentId:id,index:0,answers:[],questionSet:qs};
     state.route='assigned-attestation';save();render();window.scrollTo({top:0});
   };
-  window.chooseAttestationAnswer=function(i){const a=state.activeAttestation;if(!a)return;a.answers[a.index]=i;save();render()};
+  window.chooseAttestationAnswer=function(i){
+    const a=state.activeAttestation;if(!a)return;
+    a.answers[a.index]=i;save();render();
+    setTimeout(()=>document.querySelector('.quiz-next')?.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+  };
   window.nextAttestationQuestion=function(){
-    const a=state.activeAttestation;if(!a||a.answers[a.index]===undefined)return;
-    if(a.index<a.questionSet.length-1){a.index++;save();render();window.scrollTo({top:0})}else finishAttestation();
+    const a=state.activeAttestation;if(!a)return;
+    if(a.answers[a.index]===undefined){
+      showToast('Сначала выберите один вариант ответа');
+      const box=document.querySelector('.quiz-options');if(box){box.classList.remove('answer-required');void box.offsetWidth;box.classList.add('answer-required')}
+      return;
+    }
+    if(a.index<a.questionSet.length-1){a.index++;save();render();window.scrollTo({top:0,behavior:'smooth'})}else finishAttestation();
   };
   function finishAttestation(){
     const a=state.activeAttestation,t=(state.assignedTests||[]).find(x=>x.id===a?.assignmentId);if(!a||!t)return;
@@ -72,7 +81,7 @@
   function attestationPage(){
     const a=state.activeAttestation,t=(state.assignedTests||[]).find(x=>x.id===a?.assignmentId);if(!a||!t)return staffHome();
     const q=a.questionSet[a.index],selected=a.answers[a.index];
-    return `<section class="quiz-shell official-attestation"><div class="quiz-top"><div><div class="quiz-kicker">Официальная аттестация · ${t.area==='kitchen'?'Кухня':'Бар'}</div><h2>${esc(t.block)}</h2></div><div class="attestation-lock">Результат войдёт в рейтинг</div></div><div class="quiz-progress-label">Вопрос ${a.index+1} из ${a.questionSet.length}</div><div class="quiz-progress"><i style="width:${Math.round(a.index/a.questionSet.length*100)}%"></i></div><div class="quiz-card"><div class="quiz-kicker">Без подсказок до завершения</div><h1>${esc(q.text)}</h1><div class="quiz-options">${q.options.map((o,i)=>`<button class="quiz-option ${selected===i?'selected':''}" onclick="chooseAttestationAnswer(${i})"><span class="letter">${String.fromCharCode(65+i)}</span><span>${esc(o)}</span></button>`).join('')}</div><div class="quiz-next"><button class="primary" ${selected===undefined?'disabled':''} onclick="nextAttestationQuestion()">${a.index===a.questionSet.length-1?'Завершить аттестацию':'Дальше'}</button></div></div></section>`
+    return `<section class="quiz-shell official-attestation"><div class="quiz-top"><div><div class="quiz-kicker">Официальная аттестация · ${t.area==='kitchen'?'Кухня':'Бар'}</div><h2>${esc(t.block)}</h2></div><div class="attestation-lock">Результат войдёт в рейтинг</div></div><div class="quiz-progress-label">Вопрос ${a.index+1} из ${a.questionSet.length}</div><div class="quiz-progress"><i style="width:${Math.round(a.index/a.questionSet.length*100)}%"></i></div><div class="quiz-card"><div class="quiz-kicker">Без подсказок до завершения</div><h1>${esc(q.text)}</h1><div class="quiz-options">${q.options.map((o,i)=>`<button class="quiz-option ${selected===i?'selected':''}" onclick="chooseAttestationAnswer(${i})"><span class="letter">${String.fromCharCode(65+i)}</span><span>${esc(o)}</span></button>`).join('')}</div><div class="quiz-next"><button class="primary attestation-next ${selected===undefined?'waiting':''}" onclick="nextAttestationQuestion()">${a.index===a.questionSet.length-1?'Завершить аттестацию':'Дальше'}</button>${selected===undefined?'<small>Выберите вариант выше</small>':''}</div></div></section>`
   }
   function attestationResultPage(){
     const a=state.activeAttestation,t=(state.assignedTests||[]).find(x=>x.id===a?.assignmentId),e=t&&emp(t.employeeId);if(!a||!t||!e)return staffHome();
