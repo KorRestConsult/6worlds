@@ -48,3 +48,8 @@ body.ra-tour-lock .ra-tour-card button{
   0%,100%{box-shadow:0 0 0 0 rgba(224,54,47,.28)}
   50%{box-shadow:0 0 0 10px rgba(224,54,47,0)}
 }
+
+/* iPad/desktop tour cards must not cover large interactive targets such as PIN keypads. */
+@media(min-width:701px){
+  .ra-tour-card{max-width:390px}
+}
