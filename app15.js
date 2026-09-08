@@ -54,7 +54,7 @@
   window.chooseAttestationAnswer=function(i){
     const a=state.activeAttestation;if(!a)return;
     a.answers[a.index]=i;save();render();
-    setTimeout(()=>document.querySelector('.quiz-next')?.scrollIntoView({behavior:'smooth',block:'nearest'}),80);
+    setTimeout(()=>document.querySelector('.quiz-next')?.scrollIntoView({behavior:'auto',block:'nearest'}),80);
   };
   window.nextAttestationQuestion=function(){
     const a=state.activeAttestation;if(!a)return;
@@ -63,7 +63,7 @@
       const box=document.querySelector('.quiz-options');if(box){box.classList.remove('answer-required');void box.offsetWidth;box.classList.add('answer-required')}
       return;
     }
-    if(a.index<a.questionSet.length-1){a.index++;save();render();window.scrollTo({top:0,behavior:'smooth'})}else finishAttestation();
+    if(a.index<a.questionSet.length-1){a.index++;save();render();window.scrollTo({top:0,behavior:'auto'})}else finishAttestation();
   };
   function finishAttestation(){
     const a=state.activeAttestation,t=(state.assignedTests||[]).find(x=>x.id===a?.assignmentId);if(!a||!t)return;
