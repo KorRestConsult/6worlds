@@ -80,7 +80,7 @@
     'staff-home':[
       {sel:'.hero',title:'Личный кабинет',text:'Сотрудник видит свой текущий рейтинг и понимает, что именно влияет на него.'},
       {sel:'.scorebox',title:'Мой рейтинг',text:'Эта цифра меняется только после официальной аттестации. Обычная тренировка её не портит.'},
-      {sel:'.attestation-inbox, .notification-card',title:'Задания от управляющего',text:'Если управляющий отправил тест или назначил аттестацию, новое задание появляется здесь сразу через Firebase.'},
+      {sel:'.attestation-inbox, .notification-card',title:'Задания от управляющего',text:'Если управляющий отправил тест или назначил аттестацию, новое задание появляется здесь сразу сразу.'},
       {sel:'.area-card:first-child',title:'Изучение меню',text:'Откройте кухню или бар, чтобы учить реальные позиции Slow и запускать тренировочные тесты.'},
       {sel:'#nav',title:'Навигация',text:'Кабинет, кухня и бар всегда доступны одним нажатием.'}
     ],
@@ -135,9 +135,10 @@
   function ensureUI(){
     if(document.getElementById('raTour'))return;
     const root=document.createElement('div');root.id='raTour';root.className='ra-tour';
-    root.innerHTML='<div class="ra-tour-spot"></div><div class="ra-tour-card"><div class="ra-tour-top"><span class="ra-tour-count"></span><button class="ra-tour-skip" type="button">Пропустить</button></div><h3></h3><p></p><div class="ra-tour-dots"></div><div class="ra-tour-actions"><button class="ra-tour-back" type="button">Назад</button><button class="ra-tour-next" type="button">Далее</button></div></div>';
+    root.innerHTML='<div class="ra-tour-spot"></div><div class="ra-tour-card"><div class="ra-tour-top"><span class="ra-tour-count"></span><div class="ra-tour-top-actions"><button class="ra-tour-repeat" type="button">Повторить</button><button class="ra-tour-skip" type="button">Пропустить</button></div></div><h3></h3><p></p><div class="ra-tour-dots"></div><div class="ra-tour-actions"><button class="ra-tour-back" type="button">Назад</button><button class="ra-tour-next" type="button">Далее</button></div></div>';
     document.body.appendChild(root);
     root.querySelector('.ra-tour-skip').onclick=finish;
+    root.querySelector('.ra-tour-repeat').onclick=()=>place();
     root.querySelector('.ra-tour-back').onclick=prev;
     root.querySelector('.ra-tour-next').onclick=next;
     const help=document.createElement('button');help.id='raTourHelp';help.className='ra-tour-help';help.type='button';help.textContent='?';help.setAttribute('aria-label','Показать подсказки');help.onclick=()=>start(screenKey(),true);document.body.appendChild(help);
