@@ -5,7 +5,7 @@ function sentTestExists(employeeId,area,block){return state.assignedTests.some(t
 function sendTest(employeeId,area,encodedBlock){
   const block=decodeURIComponent(encodedBlock);
   if(!sentTestExists(employeeId,area,block)){
-    state.assignedTests.push({id:'t'+Date.now(),employeeId,area,block,status:'new',createdAt:today()});
+    state.assignedTests.push({id:'t'+Date.now(),runId:state.demoRunId||null,employeeId,area,block,status:'new',createdAt:today()});
     save();
   }
   const e=emp(employeeId);
