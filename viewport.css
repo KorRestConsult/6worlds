@@ -6,7 +6,7 @@ html{
   overflow-x:hidden;
   -webkit-text-size-adjust:100%;
   text-size-adjust:100%;
-  touch-action:pan-x pan-y;
+  touch-action:pan-y;
   background:var(--bg);
 }
 body{
@@ -103,4 +103,19 @@ img{max-width:100%}
   .hero,.managerhero{width:100%}
   .hero h1,.managerhero h1{font-size:clamp(27px,9vw,34px)}
   .scorebox strong{font-size:clamp(34px,12vw,44px)}
+}
+
+/* iPhone/PWA-like interaction polish */
+html{overscroll-behavior:none;scroll-behavior:auto}
+body{min-height:100dvh;overscroll-behavior:none;-webkit-tap-highlight-color:transparent}
+button,a,input,select{touch-action:manipulation}
+button{-webkit-user-select:none;user-select:none}
+@media (max-width:767px){
+  .app{min-height:100dvh}
+  .top{position:sticky;top:0;z-index:70;background:color-mix(in srgb,var(--bg) 92%,transparent);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px)}
+  main{padding-top:14px!important}
+  .nav{bottom:max(8px,env(safe-area-inset-bottom))!important;width:calc(100% - 28px)!important;max-width:520px!important}
+  .modal-wrap{position:fixed!important;inset:0!important;overscroll-behavior:contain!important}
+  .modal{max-height:calc(100dvh - 32px)!important;overflow-y:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior:contain}
+  .employee-detail-head,.knowledge-card,.card,.notification-card{scroll-margin-top:84px}
 }
