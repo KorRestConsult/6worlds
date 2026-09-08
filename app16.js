@@ -183,15 +183,41 @@
       }
     });
   }
+  function lockTourInteraction(){
+    document.documentElement.classList.add('ra-tour-lock');
+    document.body.classList.add('ra-tour-lock');
+  }
+  function unlockTourInteraction(){
+    document.documentElement.classList.remove('ra-tour-lock');
+    document.body.classList.remove('ra-tour-lock');
+  }
+  function blockTourGesture(e){
+    if(!active)return;
+    const card=e.target?.closest?.('.ra-tour-card');
+    if(card)return;
+    if(e.cancelable)e.preventDefault();
+  }
+  function blockTourWheel(e){
+    if(!active)return;
+    const card=e.target?.closest?.('.ra-tour-card');
+    if(card)return;
+    if(e.cancelable)e.preventDefault();
+  }
+  document.addEventListener('touchmove',blockTourGesture,{passive:false,capture:true});
+  document.addEventListener('wheel',blockTourWheel,{passive:false,capture:true});
+  document.addEventListener('gesturestart',blockTourGesture,{passive:false,capture:true});
+  document.addEventListener('gesturechange',blockTourGesture,{passive:false,capture:true});
+  document.addEventListener('gestureend',blockTourGesture,{passive:false,capture:true});
+
   function start(key,force=false){
     ensureUI();if(!key)return;
     const steps=availableSteps(key);if(!steps.length)return;
     const seen=seenMap();if(!force&&seen[key])return;
-    active=key;index=0;document.getElementById('raTour').classList.add('show');place();
+    active=key;index=0;lockTourInteraction();document.getElementById('raTour').classList.add('show');place();
   }
   function finish(){
     if(active){const m=seenMap();m[active]=true;saveSeen(m)}
-    active=null;document.getElementById('raTour')?.classList.remove('show');
+    active=null;unlockTourInteraction();document.getElementById('raTour')?.classList.remove('show');
   }
   function next(){if(!active)return;const n=availableSteps(active).length;if(index>=n-1)finish();else{index++;place()}}
   function prev(){if(active&&index>0){index--;place()}}
