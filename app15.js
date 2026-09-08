@@ -12,7 +12,7 @@
     const preview=buildDemoQuestions({area,block});
     if(!preview.length){showToast('Для этого блока пока нет вопросов аттестации');return}
     state.assignedTests.push({
-      id:'att_'+Date.now(),employeeId,area,block,assignmentType:'attestation',
+      id:'att_'+Date.now(),runId:state.demoRunId||null,employeeId,area,block,assignmentType:'attestation',
       status:'new',createdAt:today(),managerSeen:false
     });
     save();render();showToast(`Аттестация «${block}» назначена: ${e.name}`);
@@ -70,7 +70,7 @@
     let correct=0;
     a.questionSet.forEach((q,i)=>{const ci=q.correctIndex??q.options.indexOf(q.correct);if(a.answers[i]===ci)correct++});
     const score=Math.round(correct/a.questionSet.length*100),e=emp(t.employeeId);
-    const result={id:'att_result_'+Date.now(),area:t.area,block:t.block,score,date:today(),assignmentId:t.id,source:'assigned'};
+    const result={id:'att_result_'+Date.now(),runId:state.demoRunId||null,area:t.area,block:t.block,score,date:today(),assignmentId:t.id,source:'assigned'};
     e.attestations=Array.isArray(e.attestations)?e.attestations:[];
     e.attestations.push(result);
     t.status='done';t.correct=correct;t.total=a.questionSet.length;t.score=score;t.completedAt=`${today()} ${testTime()}`;t.managerSeen=false;
