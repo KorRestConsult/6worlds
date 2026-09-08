@@ -14,33 +14,25 @@
 
 ## Firebase / Firestore
 
-Restaurant Academy подключён к Firebase-проекту `slow-bistro-live`, но использует отдельный документ:
+Restaurant Academy должен использовать **отдельный Firebase project**.
+
+Целевое имя проекта:
 
 ```text
-venues/restaurant-academy-demo
+restaurant-academy-demo
 ```
 
-Внутри документа данные Academy изолированы в поле `restaurantAcademy`:
+Firebase проекта Slow использовать запрещено — ни его Firestore, ни отдельную коллекцию/документ внутри него, ни Authentication, ни Storage.
 
-```text
-restaurantAcademy.schemaVersion
-restaurantAcademy.venueId
-restaurantAcademy.employees
-restaurantAcademy.assignments
-restaurantAcademy.testResults
-restaurantAcademy.updatedAt
-restaurantAcademy.updatedBy
-```
+До подтверждённого создания отдельного Firebase-проекта приложение продолжает работать локально через `localStorage`. Перенос `employees / assignedTests / testResults` в Firestore не выполняется.
 
-Firestore является общим источником данных для сотрудников, назначенных тестов и результатов. `localStorage` остаётся локальным кэшем и хранит интерфейсное состояние устройства.
+После создания отдельного проекта следующий шаг:
 
-При первом запуске, если облачного состояния Academy ещё нет, текущие локальные `employees / assignedTests / testResults` автоматически мигрируют в Firestore. После этого `onSnapshot` обеспечивает realtime-синхронизацию между устройствами.
-
-В шапке приложения есть индикатор:
-
-- `Cloud · live` — Firestore подключён;
-- `Cloud · sync` — идёт запись;
-- `Cloud · offline/error` — Firebase или Firestore Rules не дали подключиться.
+1. зафиксировать точное имя и `projectId` нового Firebase project;
+2. подключить его к `KorRestConsult/6worlds`;
+3. только затем создать структуру Firestore;
+4. мигрировать `employees / assignedTests / testResults`;
+5. включить realtime-синхронизацию двух устройств.
 
 ## Намеренно отложено
 
@@ -48,5 +40,3 @@ Firestore является общим источником данных для �
 - импорт живого меню;
 - AI и интеграции;
 - окончательная ролевая авторизация сотрудников вместо демо-переключения ролей.
-
-Для текущего MVP один Firestore-документ на ресторан выбран намеренно: он сохраняет простую модель приложения и уже даёт реальную синхронизацию между устройствами без смешивания данных со Slow.
