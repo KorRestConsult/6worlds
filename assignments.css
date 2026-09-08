@@ -1,0 +1,9 @@
+.assigned-tests{display:grid;gap:10px}
+.assigned-test{display:grid;grid-template-columns:1fr auto;gap:14px;align-items:center;padding:15px 16px;border:1px solid var(--line-strong);border-radius:18px;background:#fff}
+.assigned-test .meta{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-bottom:5px}
+.assigned-test .meta span{font-size:8px;font-weight:850;color:var(--muted)}
+.assigned-test h3{margin:0;font-size:15px;letter-spacing:-.02em}
+.assigned-test p{margin:4px 0 0;font-size:9px;color:var(--muted)}
+.assigned-test .primary{min-width:96px}
+.knowledge-actions .sent{opacity:.55;pointer-events:none}
+@media(max-width:520px){.assigned-test{grid-template-columns:1fr}.assigned-test .primary{width:100%}}
