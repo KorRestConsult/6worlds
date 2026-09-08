@@ -36,6 +36,7 @@
   let lastEmployees='';
   let lastAssignments='';
   let lastResults='';
+  let resetInProgress=false;
 
   const clone=v=>JSON.parse(JSON.stringify(v??null));
   const cleanDoc=data=>{
@@ -59,7 +60,7 @@
   }
 
   async function pushChanged(){
-    if(!cloudReady||applyingRemote)return;
+    if(!cloudReady||applyingRemote||resetInProgress)return;
     const employees=state.employees||[];
     const assignments=state.assignedTests||[];
     const results=state.testResults||[];
@@ -107,7 +108,9 @@
 
   window.RAResetDemoCloud=async function(){
     const base=window.RA_DEMO_BASE_EMPLOYEES?JSON.parse(JSON.stringify(window.RA_DEMO_BASE_EMPLOYEES)):(state.employees||[]);
+    resetInProgress=true;
     applyingRemote=true;
+    clearTimeout(pushTimer);
     try{
       state.employees=base;
       state.assignedTests=[];
@@ -125,6 +128,7 @@
       window.RACloud.status='online';
     }finally{
       applyingRemote=false;
+      resetInProgress=false;
     }
   };
 
@@ -144,9 +148,18 @@
         await replaceCollection('testResults',state.testResults||[]);
         await root.set({name:'Restaurant Academy Demo',projectId:EXPECTED_PROJECT,createdAt:serverTimestamp(),updatedAt:serverTimestamp()},{merge:true});
       }else{
-        applyRemote('employees',docsToItems(employeesSnap));
-        applyRemote('assignments',docsToItems(assignmentsSnap));
-        applyRemote('testResults',docsToItems(resultsSnap));
+        const remoteEmployees=docsToItems(employeesSnap);
+        const remoteAssignments=docsToItems(assignmentsSnap);
+        const remoteResults=docsToItems(resultsSnap);
+        const freshLocalDemo=!state.demoRunId && !(state.assignedTests||[]).length && !(state.testResults||[]).length;
+        if(freshLocalDemo && (remoteAssignments.length||remoteResults.length)){
+          // Presentation safety: a new browser/device must never inherit another viewer's completed demo.
+          await window.RAResetDemoCloud();
+        }else{
+          applyRemote('employees',remoteEmployees);
+          applyRemote('assignments',remoteAssignments);
+          applyRemote('testResults',remoteResults);
+        }
       }
 
       lastEmployees=signature(state.employees||[]);
