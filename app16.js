@@ -9,6 +9,8 @@
     if(state.demoHandoff?.stage==='select'&&state.route==='staff-select')return 'handoff-staff-select';
     if(state.demoHandoff?.stage==='pin'&&state.route==='staff-pin')return 'handoff-staff-pin';
     if(state.demoHandoff?.stage==='home'&&state.auth==='staff'&&state.route==='home')return 'handoff-staff-home';
+    if(state.demoHandoff?.stage==='manager-pin-return'&&state.route==='manager-pin')return 'handoff-manager-pin-return';
+    if(state.demoHandoff?.stage==='manager-result'&&state.auth==='manager'&&state.route==='home')return 'handoff-manager-result';
     if(state.route==='roles')return 'roles';
     if(state.route==='manager-pin')return 'manager-pin';
     if(state.route==='staff-select')return 'staff-select:'+state.role;
@@ -27,28 +29,26 @@
 
   const tours={
     'handoff-manager':[
-      {sel:'.quick-role-waiter',title:'Теперь — кабинет официанта',text:'Задание уже назначено. Нажмите «Официант». Красная цифра показывает, сколько активных тестов и аттестаций ждут выполнения.'}
+      {sel:'.quick-role-waiter',title:'Теперь — кабинет официанта',text:'Задание уже назначено. Красная цифра показывает активные задания. Закройте подсказку и нажмите «Официант», чтобы продолжить демонстрацию.',action:true}
     ],
     'handoff-staff-select':[
       {sel:'.staff-select-head',title:'Задание уже ждёт сотрудника',text:'Система сама показывает, сколько новых заданий сейчас у официантов.'},
-      {sel:'.handoff-target',title:'Выберите нужного официанта',text:'Красная метка указывает сотрудника, которому управляющий только что назначил задание.'}
+      {sel:'.handoff-target',title:'Выберите нужного официанта',text:'Красная метка указывает сотрудника, которому управляющий только что назначил задание. После подсказки нажмите его карточку.',action:true}
     ],
     'handoff-staff-pin':[
-      {sel:'.pin-panel',title:'Войдите как сотрудник',text:'Введите персональный PIN. После входа программа сразу покажет новое задание от управляющего.'}
+      {sel:'.pin-panel',title:'Войдите как сотрудник',text:'Введите персональный PIN. Демо-код показан внизу экрана. После четвёртой цифры откроется кабинет с новым заданием.',action:true}
     ],
     'handoff-staff-home':[
       {sel:'.attestation-inbox, .notification-card',title:'Вот назначенная проверка',text:'Новое задание пришло через Firebase. Если это аттестация — результат изменит рейтинг; если тест — это только тренировка.'},
-      {sel:'.attestation-inbox .primary, .notification-card .primary',title:'Продолжите сценарий',text:'Нажмите «Начать аттестацию» или «Начать» — дальше приложение само проведёт по проверке.'}
+      {sel:'.attestation-inbox .primary, .notification-card .primary',title:'Продолжите сценарий',text:'Нажмите «Начать аттестацию» или «Начать». Это следующий шаг демонстрации.',action:true}
     ],
     'roles':[
-      {sel:'.role-intro',title:'Restaurant Academy',text:'Демонстрация начинается здесь. Выберите роль и посмотрите продукт глазами управляющего или сотрудника.'},
-      {sel:'.role-card:nth-child(1)',title:'Кабинет управляющего',text:'Здесь руководитель видит команду, рейтинги, отправляет тесты и назначает официальные аттестации.'},
-      {sel:'.role-card:nth-child(2)',title:'Кабинет официанта',text:'Официант изучает реальное меню, получает задания и видит только свой рейтинг.'},
-      {sel:'.role-card:nth-child(3)',title:'Кабинет бармена',text:'Та же система обучения для бара: меню, тренировки, задания и аттестации.'}
+      {sel:'.role-intro',title:'Restaurant Academy',text:'Это демонстрация глазами ресторана: сначала управляющий назначает проверку, затем официант получает её, проходит и рейтинг обновляется.'},
+      {sel:'.role-card:nth-child(1)',title:'Начните с управляющего',text:'Чтобы увидеть главный бизнес-сценарий, после этой подсказки нажмите «Управляющий». Официанта и бармена мы покажем дальше по цепочке.',action:true}
     ],
     'manager-pin':[
       {sel:'.pin-panel',title:'Быстрый вход',text:'PIN работает как код на смартфоне: четыре цифры, без полей и клавиатуры. Для демо код управляющего — 0000.'},
-      {sel:'.pin-keypad',title:'Введите код',text:'После четвёртой цифры вход выполняется автоматически.'}
+      {sel:'.pin-keypad',title:'Введите код',text:'Нажмите 0 → 0 → 0 → 0. После четвёртой цифры кабинет откроется автоматически.',action:true}
     ],
     'staff-select:Официант':[
       {sel:'.head',title:'Выберите сотрудника',text:'В реальном заведении каждый сотрудник входит в свой кабинет под персональным PIN.'},
@@ -66,15 +66,18 @@
       {sel:'.managerhero',title:'Команда под контролем',text:'Главный экран управляющего показывает состояние команды без лишней аналитики.'},
       {sel:'.team-score-card',title:'Рейтинг команды',text:'Он считается только по официальным аттестациям. Тренировочные тесты сюда не попадают.'},
       {sel:'.role-filters',title:'Быстрый фильтр',text:'Можно отдельно посмотреть официантов или барменов.'},
-      {sel:'.employee-compact',title:'Откройте сотрудника',text:'Вся карточка кликабельна. Внутри видно, из каких блоков складывается рейтинг и где есть слабые места.'},
-      {sel:'#nav',title:'Основные действия',text:'Внизу: команда, добавление сотрудника, архив и выход. Настройки не мешают ежедневной работе.'}
+      {sel:'#nav',title:'Основные действия',text:'Внизу: команда, добавление сотрудника, архив и выход. Это ежедневная навигация управляющего.'},
+      {sel:'.employee-compact',title:'Теперь откройте сотрудника',text:'После подсказки нажмите первую карточку сотрудника. Внутри увидите, из чего складывается рейтинг и сможете назначить проверку.',action:true}
     ],
     'employee-detail':[
       {sel:'.employee-detail-head',title:'Профиль сотрудника',text:'Сверху — общий рейтинг. Он автоматически пересчитывается после каждой новой аттестации.'},
       {sel:'.knowledge-card:first-child',title:'Знания по кухне',text:'Каждый блок имеет собственный рейтинг. Нажмите строку, чтобы открыть действия.'},
-      {sel:'.knowledge-row-wrap',title:'Два разных сценария',text:'Отправить тест — тренировка без влияния на рейтинг. Назначить аттестацию — официальный результат, который меняет рейтинг.'},
-      {sel:'.test-results-card, .history-card',title:'История результатов',text:'Управляющий видит тренировочные проверки отдельно от официальных аттестаций.'},
-      {sel:'.settings-strip',title:'Настройки спрятаны вниз',text:'Редактирование, PIN и архивирование остаются доступными, но не перегружают рабочий экран.'}
+      {sel:'.test-results-card, .history-card',title:'История результатов',text:'Тренировочные тесты и официальные аттестации хранятся отдельно. Только аттестации влияют на рейтинг.'},
+      {sel:'.knowledge-row-wrap',title:'Откройте блок знаний',text:'Нажмите первую строку блока. Она раскроется и покажет два действия: тренировочный тест и официальную аттестацию.',action:true}
+    ],
+    'employee-actions':[
+      {sel:'.knowledge-row-wrap.open .knowledge-actions .ghost',title:'Тренировочный тест',text:'Его можно отправить сотруднику в любой момент. Он проверяет знания, но не меняет рейтинг.'},
+      {sel:'.knowledge-row-wrap.open .knowledge-actions .primary',title:'Официальная аттестация',text:'Для основной демонстрации нажмите «Назначить аттестацию». После прохождения именно она изменит рейтинг сотрудника.',action:true}
     ],
     'staff-home':[
       {sel:'.hero',title:'Личный кабинет',text:'Сотрудник видит свой текущий рейтинг и понимает, что именно влияет на него.'},
@@ -110,11 +113,19 @@
     'assigned-attestation':[
       {sel:'.quiz-top',title:'Официальная аттестация',text:'Эту проверку назначил управляющий. Результат после завершения войдёт в рейтинг сотрудника.'},
       {sel:'.attestation-lock, .quiz-kicker',title:'Без подсказок',text:'Во время аттестации правильные ответы не показываются — это уже контроль знаний, а не обучение.'},
-      {sel:'.quiz-options',title:'Ответьте на вопросы',text:'После последнего вопроса результат сохраняется в Firestore и рейтинг пересчитывается автоматически.'}
+      {sel:'.quiz-options',title:'Начните аттестацию',text:'Выберите вариант ответа. После каждого ответа нажимайте «Дальше». После последнего вопроса Firestore сохранит результат и пересчитает рейтинг.',action:true}
+    ],
+    'handoff-manager-pin-return':[
+      {sel:'.pin-keypad',title:'Вернитесь управляющим',text:'Введите демо-PIN 0000. После входа покажем, что получил управляющий после аттестации.',action:true}
+    ],
+    'handoff-manager-result':[
+      {sel:'.notification-card',title:'Результат уже у управляющего',text:'Система получила завершённую аттестацию через Firebase и сразу показывает официальный результат.'},
+      {sel:'.employee-compact',title:'Рейтинг обновлён',text:'Откройте сотрудника, чтобы увидеть новый результат в блоке знаний и в истории аттестаций.',action:true}
     ],
     'assigned-attestation-result':[
       {sel:'.attestation-result .result-circle',title:'Официальный результат',text:'Это результат конкретной аттестации, который сохраняется в историю сотрудника.'},
-      {sel:'.rating-after',title:'Рейтинг пересчитан',text:'Сразу видно новый рейтинг блока, направления и общий рейтинг сотрудника.'}
+      {sel:'.rating-after',title:'Рейтинг пересчитан',text:'Сразу видно новый рейтинг блока, направления и общий рейтинг сотрудника.'},
+      {sel:'.quick-role-manager',title:'Замкните цикл',text:'Теперь вернитесь в кабинет управляющего. Там появится результат и обновлённый рейтинг сотрудника.',action:true}
     ]
   };
 
@@ -215,9 +226,19 @@
     const seen=seenMap();if(!force&&seen[key])return;
     active=key;index=0;lockTourInteraction();document.getElementById('raTour').classList.add('show');place();
   }
+  function pulseNextAction(step){
+    if(!step?.action)return;
+    const el=document.querySelector(step.sel);if(!el)return;
+    document.querySelectorAll('.ra-next-action').forEach(x=>x.classList.remove('ra-next-action'));
+    el.classList.add('ra-next-action');
+    try{el.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'})}catch(e){}
+    setTimeout(()=>el.classList.remove('ra-next-action'),6500);
+  }
   function finish(){
+    const steps=active?availableSteps(active):[],step=steps[index];
     if(active){const m=seenMap();m[active]=true;saveSeen(m)}
     active=null;unlockTourInteraction();document.getElementById('raTour')?.classList.remove('show');
+    setTimeout(()=>pulseNextAction(step),80);
   }
   function next(){if(!active)return;const n=availableSteps(active).length;if(index>=n-1)finish();else{index++;place()}}
   function prev(){if(active&&index>0){index--;place()}}
