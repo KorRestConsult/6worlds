@@ -148,7 +148,7 @@
         await replaceCollection('testResults',state.testResults||[]);
         await root.set({name:'Restaurant Academy Demo',projectId:EXPECTED_PROJECT,createdAt:serverTimestamp(),updatedAt:serverTimestamp()},{merge:true});
       }else{
-        const remoteEmployees=docsToItems(employeesSnap);
+        const remoteEmployees=window.normalizeDemoPins?window.normalizeDemoPins(docsToItems(employeesSnap)):docsToItems(employeesSnap);
         const remoteAssignments=docsToItems(assignmentsSnap);
         const remoteResults=docsToItems(resultsSnap);
         const freshLocalDemo=!state.demoRunId && !(state.assignedTests||[]).length && !(state.testResults||[]).length;
