@@ -2,9 +2,12 @@
 (function(){
   const TOUR_VERSION='ra-tour-v3';
   const SEEN_KEY=TOUR_VERSION+':seen';
+  const OPTOUT_KEY='ra-tour:optout';
 
   function seenMap(){try{return JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')}catch(e){return {}}}
   function saveSeen(m){localStorage.setItem(SEEN_KEY,JSON.stringify(m))}
+  function isOptedOut(){return localStorage.getItem(OPTOUT_KEY)==='1'}
+  function setOptOut(v){if(v)localStorage.setItem(OPTOUT_KEY,'1');else localStorage.removeItem(OPTOUT_KEY)}
   function screenKey(){
     if(state.demoHandoff?.stage==='select'&&state.route==='staff-select')return 'handoff-staff-select';
     if(state.demoHandoff?.stage==='pin'&&state.route==='staff-pin')return 'handoff-staff-pin';
@@ -36,7 +39,7 @@
       {sel:'.handoff-target',title:'Выберите нужного официанта',text:'Красная метка указывает сотрудника, которому управляющий только что назначил задание. После подсказки нажмите его карточку.',action:true}
     ],
     'handoff-staff-pin':[
-      {sel:'.pin-panel',title:'Войдите как сотрудник',text:'Введите персональный PIN. Демо-код показан внизу экрана. После четвёртой цифры откроется кабинет с новым заданием.',action:true}
+      {sel:'.pin-keypad',title:'Войдите как сотрудник',text:'Введите персональный PIN. Демо-код показан под клавиатурой. После четвёртой цифры откроется кабинет с новым заданием.',action:true}
     ],
     'handoff-staff-home':[
       {sel:'.attestation-inbox, .notification-card',title:'Вот назначенная аттестация',text:'Управляющий назначил официальную аттестацию. Её результат войдёт в рейтинг сотрудника.'},
@@ -47,7 +50,7 @@
       {sel:'.role-card:nth-child(1)',title:'Начните с управляющего',text:'Чтобы увидеть главный бизнес-сценарий, после этой подсказки нажмите «Управляющий». Официанта и бармена мы покажем дальше по цепочке.',action:true}
     ],
     'manager-pin':[
-      {sel:'.pin-panel',title:'Вход управляющего · PIN 0000',text:'Нажмите 0 → 0 → 0 → 0. После четвёртой цифры кабинет откроется автоматически.',action:true}
+      {sel:'.pin-keypad',title:'Вход управляющего · PIN 0000',text:'Нажмите 0 → 0 → 0 → 0. После четвёртой цифры кабинет откроется автоматически.',action:true}
     ],
     'staff-select:Официант':[
       {sel:'.head',title:'Выберите сотрудника',text:'В реальном заведении каждый сотрудник входит в свой кабинет под персональным PIN.'},
@@ -58,7 +61,7 @@
       {sel:'.team-grid .card, .team-grid .employee-compact',title:'Личный профиль',text:'Выберите бармена и войдите его персональным PIN.'}
     ],
     'staff-pin':[
-      {sel:'.pin-panel',title:'Вход сотрудника',text:'Демо-код крупно показан под клавиатурой. В рабочей версии у каждого сотрудника свой PIN.',action:true}
+      {sel:'.pin-keypad',title:'Вход сотрудника',text:'Демо-код крупно показан под клавиатурой. В рабочей версии у каждого сотрудника свой PIN.',action:true}
     ],
     'manager-home':[
       {sel:'.managerhero',title:'Команда под контролем',text:'Главный экран управляющего показывает состояние команды без лишней аналитики.'},
@@ -137,7 +140,7 @@
     const root=document.createElement('div');root.id='raTour';root.className='ra-tour';
     root.innerHTML='<div class="ra-tour-spot"></div><div class="ra-tour-card"><div class="ra-tour-top"><span class="ra-tour-count"></span><div class="ra-tour-top-actions"><button class="ra-tour-repeat" type="button">Повторить</button><button class="ra-tour-skip" type="button">Пропустить</button></div></div><h3></h3><p></p><div class="ra-tour-dots"></div><div class="ra-tour-actions"><button class="ra-tour-back" type="button">Назад</button><button class="ra-tour-next" type="button">Далее</button></div></div>';
     document.body.appendChild(root);
-    root.querySelector('.ra-tour-skip').onclick=finish;
+    root.querySelector('.ra-tour-skip').onclick=()=>finish('skip');
     root.querySelector('.ra-tour-repeat').onclick=()=>place();
     root.querySelector('.ra-tour-back').onclick=prev;
     root.querySelector('.ra-tour-next').onclick=next;
@@ -186,9 +189,17 @@
       }else{
         card.style.right='auto';card.style.width='min(390px,calc(100vw - 32px))';
         const below=innerHeight-r.bottom-gap,above=r.top-gap;
-        let ct=below>=ch?r.bottom+gap:Math.max(14,r.top-ch-gap);
-        let cl=Math.min(Math.max(16,r.left),innerWidth-cw-16);
-        if(Math.abs(ct-r.top)<ch&&r.right+gap+cw<innerWidth) {cl=r.right+gap;ct=Math.min(Math.max(14,r.top),innerHeight-ch-14)}
+        const roomRight=innerWidth-r.right-gap,roomLeft=r.left-gap;
+        let cl,ct;
+        if(roomRight>=cw+8){
+          cl=r.right+gap;ct=Math.min(Math.max(14,r.top),innerHeight-ch-14);
+        }else if(roomLeft>=cw+8){
+          cl=Math.max(14,r.left-cw-gap);ct=Math.min(Math.max(14,r.top),innerHeight-ch-14);
+        }else if(below>=ch+8){
+          cl=Math.min(Math.max(16,r.left),innerWidth-cw-16);ct=r.bottom+gap;
+        }else{
+          cl=Math.min(Math.max(16,r.left),innerWidth-cw-16);ct=Math.max(14,r.top-ch-gap);
+        }
         card.style.left=cl+'px';card.style.top=ct+'px';
       }
     });
@@ -233,15 +244,16 @@
     try{el.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'})}catch(e){}
     setTimeout(()=>el.classList.remove('ra-next-action'),6500);
   }
-  function finish(){
+  function finish(reason='done'){
     const steps=active?availableSteps(active):[],step=steps[index];
     if(active){const m=seenMap();m[active]=true;saveSeen(m)}
+    if(reason==='skip') setOptOut(true);
     active=null;unlockTourInteraction();document.getElementById('raTour')?.classList.remove('show');
-    setTimeout(()=>pulseNextAction(step),80);
+    if(reason!=='skip') setTimeout(()=>pulseNextAction(step),80);
   }
   function next(){if(!active)return;const steps=availableSteps(active),step=steps[index];if(step?.action){finish();return}const n=steps.length;if(index>=n-1)finish();else{index++;place()}}
   function prev(){if(active&&index>0){index--;place()}}
-  function maybe(){if(active)return;const key=screenKey();if(!key)return;setTimeout(()=>start(key,false),260)}
+  function maybe(){if(active||isOptedOut())return;const key=screenKey();if(!key)return;setTimeout(()=>start(key,false),260)}
 
   window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(place,80)});
   window.addEventListener('scroll',()=>{if(active&&!placing){clearTimeout(resizeTimer);resizeTimer=setTimeout(place,90)}},{passive:true});
@@ -250,6 +262,7 @@
   render=function(){realRender();ensureUI();maybe()};
   window.restartAcademyTour=async function(){
     finish();
+    setOptOut(false);
     saveSeen({});
     state.demoRunId='run_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
     state.demoIsolationVersion=typeof DEMO_ISOLATION_VERSION!=='undefined'?DEMO_ISOLATION_VERSION:'run-v1';
