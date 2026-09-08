@@ -1,1 +1,7 @@
 .attestation-card{border-color:#b9ae9a;background:linear-gradient(135deg,#fff,#f8f4ea)}.attestation-card .notification-badge{background:#6f5b35}.attestation-lock{font-size:9px;font-weight:900;letter-spacing:.08em;text-transform:uppercase;border:1px solid #c9bda5;border-radius:99px;padding:8px 11px;background:#fff9ed;color:#6f5b35}.official-attestation .quiz-progress i{background:#6f5b35}.attestation-result .result-circle{border-color:#6f5b35}.rating-after{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:20px 0}.rating-after>div{border:1px solid var(--line-strong);border-radius:16px;padding:12px;background:#faf9f6}.rating-after span{display:block;font-size:8px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em}.rating-after strong{display:block;font-size:24px;margin-top:4px}@media(max-width:520px){.rating-after{grid-template-columns:1fr}.attestation-lock{display:none}}
+.quiz-next{display:flex;flex-direction:column;align-items:flex-end;gap:6px;margin-top:16px}
+.quiz-next small{font-size:9px;color:var(--muted);font-weight:750}
+.attestation-next.waiting{opacity:.72}
+.answer-required{animation:raAnswerShake .28s ease}
+@keyframes raAnswerShake{0%,100%{transform:translateX(0)}25%{transform:translateX(-5px)}75%{transform:translateX(5px)}}
+@media(max-width:520px){.quiz-next .primary{width:100%;min-height:48px}.quiz-next small{align-self:center}}
