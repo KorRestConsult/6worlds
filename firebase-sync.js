@@ -49,9 +49,10 @@
     const existing=new Set(snap.docs.map(d=>d.id));
     const batch=db.batch();
     (items||[]).forEach(item=>{
-      if(!item?.id)return;
-      batch.set(ref.doc(String(item.id)),{...clone(item),_updatedAt:serverTimestamp()},{merge:false});
-      existing.delete(String(item.id));
+      const docId=item?.id||item?.testId;
+      if(!docId)return;
+      batch.set(ref.doc(String(docId)),{...clone(item),_updatedAt:serverTimestamp()},{merge:false});
+      existing.delete(String(docId));
     });
     existing.forEach(id=>batch.delete(ref.doc(id)));
     await batch.commit();
