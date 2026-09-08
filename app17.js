@@ -19,7 +19,8 @@
     save();render();
   };
   window.quickSwitchToManager=function(){
-    state.demoHandoff=null;
+    const done=(state.assignedTests||[]).filter(t=>t.assignmentType==='attestation'&&t.status==='done').sort((a,b)=>String(b.completedAt||'').localeCompare(String(a.completedAt||'')))[0];
+    state.demoHandoff=done?{employeeId:done.employeeId,stage:'manager-pin-return'}:null;
     state.role='Управляющий';
     state.auth=null;
     state.route='manager-pin';
@@ -68,6 +69,14 @@
       '</div>';
   };
 
+  const baseToggleKnowledge=toggleKnowledge;
+  toggleKnowledge=function(area,encodedBlock){
+    baseToggleKnowledge(area,encodedBlock);
+    if(state.expandedKnowledgeKey){
+      setTimeout(()=>window.RAOnboarding?.startKey('employee-actions',true),180);
+    }
+  };
+
   const baseSelectStaff=selectStaff;
   selectStaff=function(id){
     if(state.demoHandoff?.employeeId===id)state.demoHandoff.stage='pin';
@@ -76,10 +85,13 @@
 
   const baseCheckPinBuffer=checkPinBuffer;
   checkPinBuffer=function(){
-    const wasHandoff=state.route==='staff-pin'&&state.demoHandoff?.employeeId===state.currentEmployee;
+    const wasStaffHandoff=state.route==='staff-pin'&&state.demoHandoff?.employeeId===state.currentEmployee;
+    const wasManagerReturn=state.route==='manager-pin'&&state.demoHandoff?.stage==='manager-pin-return';
     baseCheckPinBuffer();
-    if(wasHandoff&&state.auth==='staff'&&state.route==='home'){
+    if(wasStaffHandoff&&state.auth==='staff'&&state.route==='home'){
       state.demoHandoff.stage='home';save();render();
+    }else if(wasManagerReturn&&state.auth==='manager'&&state.route==='home'){
+      state.demoHandoff.stage='manager-result';save();render();
     }
   };
 
