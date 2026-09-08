@@ -133,29 +133,54 @@
     root.querySelector('.ra-tour-next').onclick=next;
     const help=document.createElement('button');help.id='raTourHelp';help.className='ra-tour-help';help.type='button';help.textContent='?';help.setAttribute('aria-label','Показать подсказки');help.onclick=()=>start(screenKey(),true);document.body.appendChild(help);
   }
+  let placing=false;
+  function targetNeedsScroll(r){
+    const safeTop=86,safeBottom=innerHeight-110;
+    return r.top<safeTop||r.bottom>safeBottom||r.height>innerHeight*.72;
+  }
+  function scrollTargetIntoView(el,done){
+    const r=el.getBoundingClientRect();
+    if(!targetNeedsScroll(r)){done();return}
+    placing=true;
+    try{el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'})}catch(e){el.scrollIntoView({block:'center'})}
+    setTimeout(()=>{placing=false;done()},360);
+  }
   function place(){
     if(!active)return;
     const steps=availableSteps(active),step=steps[index];if(!step){finish();return}
     const el=document.querySelector(step.sel);if(!el){next();return}
+    scrollTargetIntoView(el,()=>placeVisible(el,step,steps));
+  }
+  function placeVisible(el,step,steps){
+    if(!active||!document.body.contains(el))return;
     const r=el.getBoundingClientRect(),spot=document.querySelector('.ra-tour-spot'),card=document.querySelector('.ra-tour-card');
     const pad=8,left=Math.max(6,r.left-pad),top=Math.max(6,r.top-pad),width=Math.min(innerWidth-left-6,r.width+pad*2),height=Math.min(innerHeight-top-6,r.height+pad*2);
-    Object.assign(spot.style,{left:left+'px',top:top+'px',width:width+'px',height:height+'px'});
+    Object.assign(spot.style,{left:left+'px',top:top+'px',width:Math.max(24,width)+'px',height:Math.max(24,height)+'px'});
     card.querySelector('h3').textContent=step.title;card.querySelector('p').textContent=step.text;
     card.querySelector('.ra-tour-count').textContent=(index+1)+' / '+steps.length;
     card.querySelector('.ra-tour-back').disabled=index===0;
     card.querySelector('.ra-tour-next').textContent=index===steps.length-1?'Понятно':'Далее';
     card.querySelector('.ra-tour-dots').innerHTML=steps.map((_,i)=>'<i class="'+(i===index?'on':'')+'"></i>').join('');
     requestAnimationFrame(()=>{
-      const ch=card.offsetHeight,cw=card.offsetWidth,spaceBelow=innerHeight-(r.bottom+16),spaceAbove=r.top-16;
-      let ct;
-      if(innerWidth<700){ct=Math.max(12,innerHeight-ch-18);card.style.left='16px';card.style.right='16px';card.style.width='auto';}
-      else{
+      const ch=card.offsetHeight,cw=card.offsetWidth,gap=14;
+      if(innerWidth<700){
+        card.style.left='14px';card.style.right='14px';card.style.width='auto';
+        const targetCenter=r.top+r.height/2;
+        const topSpace=r.top-gap;
+        const bottomSpace=innerHeight-r.bottom-gap;
+        let ct;
+        if(targetCenter>innerHeight/2&&topSpace>=ch+10) ct=Math.max(12,r.top-ch-gap);
+        else if(bottomSpace>=ch+10) ct=Math.min(innerHeight-ch-12,r.bottom+gap);
+        else ct=targetCenter>innerHeight/2?12:Math.max(12,innerHeight-ch-12);
+        card.style.top=ct+'px';
+      }else{
         card.style.right='auto';card.style.width='min(390px,calc(100vw - 32px))';
-        ct=spaceBelow>=ch?r.bottom+14:Math.max(14,r.top-ch-14);
+        const below=innerHeight-r.bottom-gap,above=r.top-gap;
+        let ct=below>=ch?r.bottom+gap:Math.max(14,r.top-ch-gap);
         let cl=Math.min(Math.max(16,r.left),innerWidth-cw-16);
-        card.style.left=cl+'px';
+        if(Math.abs(ct-r.top)<ch&&r.right+gap+cw<innerWidth) {cl=r.right+gap;ct=Math.min(Math.max(14,r.top),innerHeight-ch-14)}
+        card.style.left=cl+'px';card.style.top=ct+'px';
       }
-      card.style.top=ct+'px';
     });
   }
   function start(key,force=false){
@@ -173,7 +198,7 @@
   function maybe(){if(active)return;const key=screenKey();if(!key)return;setTimeout(()=>start(key,false),260)}
 
   window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(place,80)});
-  window.addEventListener('scroll',()=>{if(active)place()},{passive:true});
+  window.addEventListener('scroll',()=>{if(active&&!placing){clearTimeout(resizeTimer);resizeTimer=setTimeout(place,90)}},{passive:true});
 
   const realRender=render;
   render=function(){realRender();ensureUI();maybe()};
