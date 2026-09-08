@@ -1,0 +1,29 @@
+/* Expandable knowledge rows on manager employee page. */
+.knowledge-row-wrap{border-top:1px solid var(--line-strong)}
+.knowledge-row-wrap:first-child{border-top:0}
+.knowledge-row{width:100%;border:0;background:transparent;padding:15px 0;display:grid;grid-template-columns:1fr auto auto;gap:12px;align-items:center;text-align:left;min-height:64px;border-radius:0}
+.knowledge-row:hover{background:#00000003}
+.knowledge-row:active{background:#00000006}
+.knowledge-row b{display:block;font-size:10px;line-height:1.25}
+.knowledge-row small{display:block;margin-top:3px;font-size:8px;color:var(--muted)}
+.knowledge-row strong{font-size:16px;min-width:42px;text-align:right}
+.knowledge-chevron{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;color:var(--muted);font-size:18px;line-height:1;transition:transform .18s ease,background .18s ease}
+.knowledge-row-wrap.open .knowledge-chevron{transform:rotate(90deg);background:var(--soft);color:var(--ink)}
+.knowledge-expand{display:none;padding:0 0 15px}
+.knowledge-row-wrap.open .knowledge-expand{display:block}
+.knowledge-expand-inner{border-top:1px dashed var(--line);padding-top:12px;display:grid;grid-template-columns:1fr auto;gap:12px;align-items:center}
+.knowledge-explain b{display:block;font-size:9px}
+.knowledge-explain small{display:block;color:var(--muted);font-size:8px;line-height:1.4;margin-top:3px}
+.knowledge-actions{display:flex;gap:8px;justify-content:flex-end;flex-wrap:wrap}
+.knowledge-actions .ghost,.knowledge-actions .primary{min-height:38px;padding:8px 11px;font-size:9px}
+.knowledge-actions .primary{min-width:148px}
+.knowledge-actions .ghost{min-width:118px}
+@media(max-width:700px){
+  .knowledge-row{padding:14px 0;grid-template-columns:1fr auto auto}
+  .knowledge-expand-inner{grid-template-columns:1fr}
+  .knowledge-actions{justify-content:stretch;display:grid;grid-template-columns:1fr 1fr}
+  .knowledge-actions .ghost,.knowledge-actions .primary{width:100%;min-width:0}
+}
+@media(max-width:420px){
+  .knowledge-actions{grid-template-columns:1fr}
+}
