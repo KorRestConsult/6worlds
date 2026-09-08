@@ -46,7 +46,7 @@ function openAssignedTest(id){
   const t=state.assignedTests.find(x=>x.id===id);if(!t||t.status==='done')return;
   t.status='opened';
   state.activeQuiz={testId:id,index:0,answers:[]};
-  state.route='assigned-test';save();render();window.scrollTo({top:0,behavior:'smooth'});
+  state.route='assigned-test';save();render();window.scrollTo({top:0,behavior:'auto'});
 }
 function selectedQuizAnswer(){const q=state.activeQuiz;return q?.answers?.[q.index]??null}
 function chooseQuizAnswer(index){const q=state.activeQuiz;if(!q)return;q.answers[q.index]=index;save();render()}
@@ -54,7 +54,7 @@ function nextQuizQuestion(){
   const q=state.activeQuiz;if(!q||q.answers[q.index]===undefined)return;
   const t=state.assignedTests.find(x=>x.id===q.testId);if(!t)return;
   const questions=buildDemoQuestions(t);
-  if(q.index<questions.length-1){q.index++;save();render();window.scrollTo({top:0,behavior:'smooth'})}else finishTrainingTest();
+  if(q.index<questions.length-1){q.index++;save();render();window.scrollTo({top:0,behavior:'auto'})}else finishTrainingTest();
 }
 function finishTrainingTest(){
   const q=state.activeQuiz;if(!q)return;const t=state.assignedTests.find(x=>x.id===q.testId);if(!t)return;
