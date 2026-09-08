@@ -1,0 +1,164 @@
+// Guided onboarding for the presentation build. First visit per screen + manual replay via ?.
+(function(){
+  const TOUR_VERSION='ra-tour-v1';
+  const SEEN_KEY=TOUR_VERSION+':seen';
+
+  function seenMap(){try{return JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')}catch(e){return {}}}
+  function saveSeen(m){localStorage.setItem(SEEN_KEY,JSON.stringify(m))}
+  function screenKey(){
+    if(state.route==='roles')return 'roles';
+    if(state.route==='manager-pin')return 'manager-pin';
+    if(state.route==='staff-select')return 'staff-select:'+state.role;
+    if(state.route==='staff-pin')return 'staff-pin';
+    if(state.auth==='manager'&&state.route==='home')return 'manager-home';
+    if(state.auth==='manager'&&state.route==='employee-detail')return 'employee-detail';
+    if(state.auth==='staff'&&state.route==='home')return 'staff-home';
+    if(state.auth==='staff'&&state.route==='learn')return 'learn:'+state.learnArea;
+    if(state.route==='assigned-test')return 'assigned-test';
+    if(state.route==='assigned-test-result')return 'assigned-test-result';
+    if(state.route==='assigned-attestation')return 'assigned-attestation';
+    if(state.route==='assigned-attestation-result')return 'assigned-attestation-result';
+    if(state.route==='slow-self-quiz')return 'slow-self-quiz';
+    return '';
+  }
+
+  const tours={
+    'roles':[
+      {sel:'.role-intro',title:'Restaurant Academy',text:'Демонстрация начинается здесь. Выберите роль и посмотрите продукт глазами управляющего или сотрудника.'},
+      {sel:'.role-card:nth-child(1)',title:'Кабинет управляющего',text:'Здесь руководитель видит команду, рейтинги, отправляет тесты и назначает официальные аттестации.'},
+      {sel:'.role-card:nth-child(2)',title:'Кабинет официанта',text:'Официант изучает реальное меню, получает задания и видит только свой рейтинг.'},
+      {sel:'.role-card:nth-child(3)',title:'Кабинет бармена',text:'Та же система обучения для бара: меню, тренировки, задания и аттестации.'}
+    ],
+    'manager-pin':[
+      {sel:'.pin-panel',title:'Быстрый вход',text:'PIN работает как код на смартфоне: четыре цифры, без полей и клавиатуры. Для демо код управляющего — 0000.'},
+      {sel:'.pin-keypad',title:'Введите код',text:'После четвёртой цифры вход выполняется автоматически.'}
+    ],
+    'staff-select:Официант':[
+      {sel:'.head',title:'Выберите сотрудника',text:'В реальном заведении каждый сотрудник входит в свой кабинет под персональным PIN.'},
+      {sel:'.team-grid .card, .team-grid .employee-compact',title:'Личный профиль',text:'Нажмите на нужного официанта. Рейтинг и история принадлежат конкретному сотруднику.'}
+    ],
+    'staff-select:Бармен':[
+      {sel:'.head',title:'Выберите сотрудника',text:'У каждого бармена свой кабинет, задания, история тестов и рейтинг.'},
+      {sel:'.team-grid .card, .team-grid .employee-compact',title:'Личный профиль',text:'Выберите бармена и войдите его персональным PIN.'}
+    ],
+    'staff-pin':[
+      {sel:'.pin-panel',title:'Персональный PIN',text:'Этот код отделяет сотрудников друг от друга на одном общем устройстве ресторана.'},
+      {sel:'.pin-demo',title:'Демо-доступ',text:'В презентации код показан здесь специально. В рабочей версии управляющий меняет PIN сотрудника.'}
+    ],
+    'manager-home':[
+      {sel:'.managerhero',title:'Команда под контролем',text:'Главный экран управляющего показывает состояние команды без лишней аналитики.'},
+      {sel:'.team-score-card',title:'Рейтинг команды',text:'Он считается только по официальным аттестациям. Тренировочные тесты сюда не попадают.'},
+      {sel:'.role-filters',title:'Быстрый фильтр',text:'Можно отдельно посмотреть официантов или барменов.'},
+      {sel:'.employee-compact',title:'Откройте сотрудника',text:'Вся карточка кликабельна. Внутри видно, из каких блоков складывается рейтинг и где есть слабые места.'},
+      {sel:'#nav',title:'Основные действия',text:'Внизу: команда, добавление сотрудника, архив и выход. Настройки не мешают ежедневной работе.'}
+    ],
+    'employee-detail':[
+      {sel:'.employee-detail-head',title:'Профиль сотрудника',text:'Сверху — общий рейтинг. Он автоматически пересчитывается после каждой новой аттестации.'},
+      {sel:'.knowledge-card:first-child',title:'Знания по кухне',text:'Каждый блок имеет собственный рейтинг. Нажмите строку, чтобы открыть действия.'},
+      {sel:'.knowledge-row-wrap',title:'Два разных сценария',text:'Отправить тест — тренировка без влияния на рейтинг. Назначить аттестацию — официальный результат, который меняет рейтинг.'},
+      {sel:'.test-results-card, .history-card',title:'История результатов',text:'Управляющий видит тренировочные проверки отдельно от официальных аттестаций.'},
+      {sel:'.settings-strip',title:'Настройки спрятаны вниз',text:'Редактирование, PIN и архивирование остаются доступными, но не перегружают рабочий экран.'}
+    ],
+    'staff-home':[
+      {sel:'.hero',title:'Личный кабинет',text:'Сотрудник видит свой текущий рейтинг и понимает, что именно влияет на него.'},
+      {sel:'.scorebox',title:'Мой рейтинг',text:'Эта цифра меняется только после официальной аттестации. Обычная тренировка её не портит.'},
+      {sel:'.attestation-inbox, .notification-card',title:'Задания от управляющего',text:'Если управляющий отправил тест или назначил аттестацию, новое задание появляется здесь сразу через Firebase.'},
+      {sel:'.area-card:first-child',title:'Изучение меню',text:'Откройте кухню или бар, чтобы учить реальные позиции Slow и запускать тренировочные тесты.'},
+      {sel:'#nav',title:'Навигация',text:'Кабинет, кухня и бар всегда доступны одним нажатием.'}
+    ],
+    'learn:kitchen':[
+      {sel:'.head',title:'Кухня Slow',text:'Здесь уже загружено реальное демонстрационное меню Slow с фотографиями, составами, ценами и описаниями.'},
+      {sel:'.toolbar',title:'Разделы меню',text:'Переключайтесь между холодными и горячими закусками, салатами, супами, горячими блюдами и десертами.'},
+      {sel:'.menu-grid .menu-card, #menuBlock .menu-card',title:'Карточка блюда',text:'Откройте блюдо: сотрудник увидит фото, состав, вкус и сервисную подсказку.'},
+      {sel:'#menuBlock .ghost, .head .ghost',title:'Тест по блоку',text:'Можно проверить не одну позицию, а целый раздел меню. Вопросы берутся из банка Slow.'}
+    ],
+    'learn:bar':[
+      {sel:'.head',title:'Бар Slow',text:'В баре собраны реальные позиции: коктейли, вино, крепкий алкоголь, пиво, чай и безалкогольные напитки.'},
+      {sel:'.toolbar',title:'Разделы бара',text:'Выберите нужный блок и изучайте его отдельно.'},
+      {sel:'.menu-grid .menu-card, #menuBlock .menu-card',title:'Карточка напитка',text:'Фото, описание, цена и ключевые вкусовые характеристики собраны в одной карточке.'},
+      {sel:'#menuBlock .ghost, .head .ghost',title:'Проверить знания',text:'Тесты используют реальные сценарии продажи и сервиса, а не только зубрёжку цены.'}
+    ],
+    'assigned-test':[
+      {sel:'.quiz-top',title:'Тест от управляющего',text:'Это тренировочная проверка. Результат вернётся управляющему, но рейтинг сотрудника не изменится.'},
+      {sel:'.quiz-progress',title:'Прогресс',text:'Сотрудник всегда видит, сколько вопросов осталось.'},
+      {sel:'.quiz-options',title:'Ответ и обучение',text:'После ответа Slow показывает верно или неверно и объясняет правильную логику.'}
+    ],
+    'slow-self-quiz':[
+      {sel:'.quiz-top',title:'Самостоятельная тренировка',text:'Сотрудник может учиться сам, даже если управляющий ничего не назначал.'},
+      {sel:'.quiz-options',title:'Практика по меню',text:'Вопросы построены на составе, вкусе, продаже, сервисе и реальных ситуациях с гостем.'}
+    ],
+    'assigned-test-result':[
+      {sel:'.quiz-result',title:'Результат тренировки',text:'Результат сохранён и доступен управляющему. Главный рейтинг при этом остаётся прежним.'}
+    ],
+    'assigned-attestation':[
+      {sel:'.quiz-top',title:'Официальная аттестация',text:'Эту проверку назначил управляющий. Результат после завершения войдёт в рейтинг сотрудника.'},
+      {sel:'.attestation-lock, .quiz-kicker',title:'Без подсказок',text:'Во время аттестации правильные ответы не показываются — это уже контроль знаний, а не обучение.'},
+      {sel:'.quiz-options',title:'Ответьте на вопросы',text:'После последнего вопроса результат сохраняется в Firestore и рейтинг пересчитывается автоматически.'}
+    ],
+    'assigned-attestation-result':[
+      {sel:'.attestation-result .result-circle',title:'Официальный результат',text:'Это результат конкретной аттестации, который сохраняется в историю сотрудника.'},
+      {sel:'.rating-after',title:'Рейтинг пересчитан',text:'Сразу видно новый рейтинг блока, направления и общий рейтинг сотрудника.'}
+    ]
+  };
+
+  let active=null,index=0,resizeTimer=null;
+
+  function availableSteps(key){
+    return (tours[key]||[]).filter(s=>document.querySelector(s.sel));
+  }
+  function ensureUI(){
+    if(document.getElementById('raTour'))return;
+    const root=document.createElement('div');root.id='raTour';root.className='ra-tour';
+    root.innerHTML='<div class="ra-tour-spot"></div><div class="ra-tour-card"><div class="ra-tour-top"><span class="ra-tour-count"></span><button class="ra-tour-skip" type="button">Пропустить</button></div><h3></h3><p></p><div class="ra-tour-dots"></div><div class="ra-tour-actions"><button class="ra-tour-back" type="button">Назад</button><button class="ra-tour-next" type="button">Далее</button></div></div>';
+    document.body.appendChild(root);
+    root.querySelector('.ra-tour-skip').onclick=finish;
+    root.querySelector('.ra-tour-back').onclick=prev;
+    root.querySelector('.ra-tour-next').onclick=next;
+    const help=document.createElement('button');help.id='raTourHelp';help.className='ra-tour-help';help.type='button';help.textContent='?';help.setAttribute('aria-label','Показать подсказки');help.onclick=()=>start(screenKey(),true);document.body.appendChild(help);
+  }
+  function place(){
+    if(!active)return;
+    const steps=availableSteps(active),step=steps[index];if(!step){finish();return}
+    const el=document.querySelector(step.sel);if(!el){next();return}
+    const r=el.getBoundingClientRect(),spot=document.querySelector('.ra-tour-spot'),card=document.querySelector('.ra-tour-card');
+    const pad=8,left=Math.max(6,r.left-pad),top=Math.max(6,r.top-pad),width=Math.min(innerWidth-left-6,r.width+pad*2),height=Math.min(innerHeight-top-6,r.height+pad*2);
+    Object.assign(spot.style,{left:left+'px',top:top+'px',width:width+'px',height:height+'px'});
+    card.querySelector('h3').textContent=step.title;card.querySelector('p').textContent=step.text;
+    card.querySelector('.ra-tour-count').textContent=(index+1)+' / '+steps.length;
+    card.querySelector('.ra-tour-back').disabled=index===0;
+    card.querySelector('.ra-tour-next').textContent=index===steps.length-1?'Понятно':'Далее';
+    card.querySelector('.ra-tour-dots').innerHTML=steps.map((_,i)=>'<i class="'+(i===index?'on':'')+'"></i>').join('');
+    requestAnimationFrame(()=>{
+      const ch=card.offsetHeight,cw=card.offsetWidth,spaceBelow=innerHeight-(r.bottom+16),spaceAbove=r.top-16;
+      let ct;
+      if(innerWidth<700){ct=Math.max(12,innerHeight-ch-18);card.style.left='16px';card.style.right='16px';card.style.width='auto';}
+      else{
+        card.style.right='auto';card.style.width='min(390px,calc(100vw - 32px))';
+        ct=spaceBelow>=ch?r.bottom+14:Math.max(14,r.top-ch-14);
+        let cl=Math.min(Math.max(16,r.left),innerWidth-cw-16);
+        card.style.left=cl+'px';
+      }
+      card.style.top=ct+'px';
+    });
+  }
+  function start(key,force=false){
+    ensureUI();if(!key)return;
+    const steps=availableSteps(key);if(!steps.length)return;
+    const seen=seenMap();if(!force&&seen[key])return;
+    active=key;index=0;document.getElementById('raTour').classList.add('show');place();
+  }
+  function finish(){
+    if(active){const m=seenMap();m[active]=true;saveSeen(m)}
+    active=null;document.getElementById('raTour')?.classList.remove('show');
+  }
+  function next(){if(!active)return;const n=availableSteps(active).length;if(index>=n-1)finish();else{index++;place()}}
+  function prev(){if(active&&index>0){index--;place()}}
+  function maybe(){if(active)return;const key=screenKey();if(!key)return;setTimeout(()=>start(key,false),260)}
+
+  window.addEventListener('resize',()=>{clearTimeout(resizeTimer);resizeTimer=setTimeout(place,80)});
+  window.addEventListener('scroll',()=>{if(active)place()},{passive:true});
+
+  const realRender=render;
+  render=function(){realRender();ensureUI();maybe()};
+  ensureUI();maybe();
+})();
