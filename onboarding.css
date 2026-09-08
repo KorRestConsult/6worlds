@@ -24,3 +24,15 @@ body.ra-tour-lock .ra-tour-card{
 body.ra-tour-lock .ra-tour-card button{
   touch-action:manipulation!important;
 }
+
+html.ra-tour-lock,body.ra-tour-lock{
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+body.ra-tour-lock .ra-tour-card{
+  touch-action:pan-y!important;
+  overscroll-behavior:contain!important;
+}
+body.ra-tour-lock .ra-tour-card button{
+  touch-action:manipulation!important;
+}
