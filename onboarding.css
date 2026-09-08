@@ -5,3 +5,22 @@
   .ra-tour-card{max-height:42vh;overflow:auto;-webkit-overflow-scrolling:touch}
   .ra-tour-card p{font-size:11px;line-height:1.45}
 }
+
+/* During guided onboarding the app is deliberately locked in place.
+   The tour itself may scroll targets programmatically, but fingers cannot drag the page,
+   swipe sideways into browser/history states, or pinch/zoom the underlying app. */
+html.ra-tour-lock,body.ra-tour-lock{
+  overscroll-behavior:none!important;
+  touch-action:none!important;
+}
+body.ra-tour-lock .app,
+body.ra-tour-lock .modal-wrap{
+  overscroll-behavior:none!important;
+}
+body.ra-tour-lock .ra-tour-card{
+  touch-action:pan-y!important;
+  overscroll-behavior:contain!important;
+}
+body.ra-tour-lock .ra-tour-card button{
+  touch-action:manipulation!important;
+}
