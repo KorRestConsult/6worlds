@@ -202,6 +202,23 @@
 
   const realRender=render;
   render=function(){realRender();ensureUI();maybe()};
-  window.RAOnboarding={startKey:(key,force=true)=>start(key,force),currentKey:screenKey};
+  window.restartAcademyTour=function(){
+    finish();
+    saveSeen({});
+    state.demoHandoff=null;
+    state.auth=null;
+    state.role=null;
+    state.currentEmployee=null;
+    state.route='roles';
+    save();
+    render();
+    window.scrollTo({top:0,behavior:'smooth'});
+    setTimeout(()=>start('roles',true),320);
+  };
+  window.RAOnboarding={
+    startKey:(key,force=true)=>start(key,force),
+    currentKey:screenKey,
+    restart:window.restartAcademyTour
+  };
   ensureUI();maybe();
 })();
