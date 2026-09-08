@@ -37,7 +37,7 @@
 
   function attestationAssignmentsHTML(e){
     const rows=pendingAttestationsFor(e.id);if(!rows.length)return '';
-    return `<section class="section section-lined attestation-inbox"><div class="section-title"><span>!</span><div><h2>Новая аттестация</h2><p>Официальная проверка от управляющего · результат войдёт в рейтинг</p></div></div><div class="assigned-tests">${rows.map(t=>`<div class="notification-card attestation-card"><div class="notification-badge">★</div><div><div class="meta"><span>${t.area==='kitchen'?'КУХНЯ':'БАР'}</span><span>·</span><span>АТТЕСТАЦИЯ</span></div><h3>${esc(t.block)}</h3><p>Официальный результат · влияет на рейтинг</p></div><button class="primary" onclick="openAssignedAttestation('${t.id}')">Начать аттестацию</button></div>`).join('')}</div></section>`
+    return `<section class="section section-lined attestation-inbox"><div class="section-title"><span>!</span><div><h2>Новая аттестация</h2><p>Официальная аттестация от управляющего · результат войдёт в рейтинг</p></div></div><div class="assigned-tests">${rows.map(t=>`<div class="notification-card attestation-card"><div class="notification-badge">★</div><div><div class="meta"><span>${t.area==='kitchen'?'КУХНЯ':'БАР'}</span><span>·</span><span>АТТЕСТАЦИЯ</span></div><h3>${esc(t.block)}</h3><p>Официальный результат · влияет на рейтинг</p></div><button class="primary" onclick="openAssignedAttestation('${t.id}')">Начать аттестацию</button></div>`).join('')}</div></section>`
   }
 
   const trainingAssignmentsHTML=assignedTestsHTML;
@@ -86,7 +86,7 @@
   function attestationResultPage(){
     const a=state.activeAttestation,t=(state.assignedTests||[]).find(x=>x.id===a?.assignmentId),e=t&&emp(t.employeeId);if(!a||!t||!e)return staffHome();
     const blockRating=rating(e,t.area,t.block),areaRating=rating(e,t.area),all=rating(e);
-    return `<section class="quiz-shell"><div class="quiz-card quiz-result attestation-result"><div class="quiz-kicker">Аттестация завершена</div><div class="result-circle"><strong>${a.correct}/${a.total}</strong></div><h1>${esc(t.block)}</h1><p><b>${a.score}%</b> · официальный результат сохранён.</p><div class="rating-after"><div><span>Блок</span><strong>${blockRating}%</strong></div><div><span>${t.area==='kitchen'?'Кухня':'Бар'}</span><strong>${areaRating}%</strong></div><div><span>Общий рейтинг</span><strong>${all}%</strong></div></div><button class="primary" onclick="state.activeAttestation=null;state.route='home';save();render()">В кабинет</button></div></section>`
+    return `<section class="quiz-shell"><div class="quiz-card quiz-result attestation-result"><div class="quiz-kicker">Аттестация завершена</div><div class="result-circle"><strong>${a.score}%</strong><small>результат аттестации</small></div><h1>${esc(t.block)}</h1><p><b>${a.correct} из ${a.total}</b> правильных ответов · официальный результат сохранён.</p><div class="rating-after"><div><span>Блок</span><strong>${blockRating}%</strong></div><div><span>${t.area==='kitchen'?'Кухня':'Бар'}</span><strong>${areaRating}%</strong></div><div><span>Общий рейтинг</span><strong>${all}%</strong></div></div><button class="primary" onclick="state.activeAttestation=null;state.route='home';save();render()">В кабинет</button></div></section>`
   }
 
   const staffBeforeAttestation=renderStaff;
@@ -107,7 +107,7 @@
     const oldSeen=t.managerSeen;t.managerSeen=true;
     const base=managerBeforeAttestation();
     t.managerSeen=oldSeen;
-    return `<section class="section"><div class="notification-card attestation-card"><div class="notification-badge">★</div><div><div class="meta"><span>АТТЕСТАЦИЯ ЗАВЕРШЕНА</span><span>·</span><span>${t.area==='kitchen'?'КУХНЯ':'БАР'}</span></div><h3>${esc(e?.name||'Сотрудник')} · ${esc(t.block)}</h3><p>${t.score}% · рейтинг уже пересчитан: ${rating(e)}%</p></div><button class="primary" onclick="openAttestationResultForManager('${t.id}')">Посмотреть</button></div></section>${base}`
+    return `<section class="section"><div class="notification-card attestation-card"><div class="notification-badge">★</div><div><div class="meta"><span>АТТЕСТАЦИЯ ЗАВЕРШЕНА</span><span>·</span><span>${t.area==='kitchen'?'КУХНЯ':'БАР'}</span></div><h3>${esc(e?.name||'Сотрудник')} · ${esc(t.block)}</h3><p>Результат аттестации: <b>${t.correct} из ${t.total}</b> (${t.score}%) · новый общий рейтинг: <b>${rating(e)}%</b></p></div><button class="primary" onclick="openAttestationResultForManager('${t.id}')">Посмотреть</button></div></section>${base}`
   };
   window.openAttestationResultForManager=function(id){const t=state.assignedTests.find(x=>x.id===id);if(!t)return;t.managerSeen=true;save();openEmployeePage(t.employeeId)};
 
