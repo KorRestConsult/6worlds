@@ -209,6 +209,22 @@
   document.addEventListener('gesturechange',blockTourGesture,{passive:false,capture:true});
   document.addEventListener('gestureend',blockTourGesture,{passive:false,capture:true});
 
+  function lockTourInteraction(){
+    document.documentElement.classList.add('ra-tour-lock');
+    document.body.classList.add('ra-tour-lock');
+  }
+  function unlockTourInteraction(){
+    document.documentElement.classList.remove('ra-tour-lock');
+    document.body.classList.remove('ra-tour-lock');
+  }
+  function blockTourMove(e){
+    if(!active)return;
+    if(e.target?.closest?.('.ra-tour-card'))return;
+    if(e.cancelable)e.preventDefault();
+  }
+  document.addEventListener('touchmove',blockTourMove,{passive:false,capture:true});
+  document.addEventListener('wheel',blockTourMove,{passive:false,capture:true});
+
   function start(key,force=false){
     ensureUI();if(!key)return;
     const steps=availableSteps(key);if(!steps.length)return;
