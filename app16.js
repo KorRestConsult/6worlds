@@ -142,8 +142,8 @@
     const r=el.getBoundingClientRect();
     if(!targetNeedsScroll(r)){done();return}
     placing=true;
-    try{el.scrollIntoView({behavior:'smooth',block:'center',inline:'nearest'})}catch(e){el.scrollIntoView({block:'center'})}
-    setTimeout(()=>{placing=false;done()},360);
+    try{el.scrollIntoView({behavior:'auto',block:'center',inline:'nearest'})}catch(e){el.scrollIntoView({block:'center'})}
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{placing=false;done()}));
   }
   function place(){
     if(!active)return;
@@ -209,22 +209,6 @@
   document.addEventListener('gesturechange',blockTourGesture,{passive:false,capture:true});
   document.addEventListener('gestureend',blockTourGesture,{passive:false,capture:true});
 
-  function lockTourInteraction(){
-    document.documentElement.classList.add('ra-tour-lock');
-    document.body.classList.add('ra-tour-lock');
-  }
-  function unlockTourInteraction(){
-    document.documentElement.classList.remove('ra-tour-lock');
-    document.body.classList.remove('ra-tour-lock');
-  }
-  function blockTourMove(e){
-    if(!active)return;
-    if(e.target?.closest?.('.ra-tour-card'))return;
-    if(e.cancelable)e.preventDefault();
-  }
-  document.addEventListener('touchmove',blockTourMove,{passive:false,capture:true});
-  document.addEventListener('wheel',blockTourMove,{passive:false,capture:true});
-
   function start(key,force=false){
     ensureUI();if(!key)return;
     const steps=availableSteps(key);if(!steps.length)return;
@@ -248,6 +232,10 @@
     finish();
     saveSeen({});
     state.demoHandoff=null;
+    state.assignedTests=[];
+    state.activeAssignedTest=null;
+    state.activeAttestation=null;
+    state.expandedKnowledgeKey='';
     state.auth=null;
     state.role=null;
     state.currentEmployee=null;
