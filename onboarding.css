@@ -36,3 +36,15 @@ body.ra-tour-lock .ra-tour-card{
 body.ra-tour-lock .ra-tour-card button{
   touch-action:manipulation!important;
 }
+
+.ra-next-action{
+  position:relative;
+  z-index:90!important;
+  animation:raNextPulse 1.15s ease-in-out infinite!important;
+  outline:3px solid rgba(224,54,47,.72)!important;
+  outline-offset:4px!important;
+}
+@keyframes raNextPulse{
+  0%,100%{box-shadow:0 0 0 0 rgba(224,54,47,.28)}
+  50%{box-shadow:0 0 0 10px rgba(224,54,47,0)}
+}
