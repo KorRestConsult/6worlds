@@ -6,6 +6,9 @@
   function seenMap(){try{return JSON.parse(localStorage.getItem(SEEN_KEY)||'{}')}catch(e){return {}}}
   function saveSeen(m){localStorage.setItem(SEEN_KEY,JSON.stringify(m))}
   function screenKey(){
+    if(state.demoHandoff?.stage==='select'&&state.route==='staff-select')return 'handoff-staff-select';
+    if(state.demoHandoff?.stage==='pin'&&state.route==='staff-pin')return 'handoff-staff-pin';
+    if(state.demoHandoff?.stage==='home'&&state.auth==='staff'&&state.route==='home')return 'handoff-staff-home';
     if(state.route==='roles')return 'roles';
     if(state.route==='manager-pin')return 'manager-pin';
     if(state.route==='staff-select')return 'staff-select:'+state.role;
@@ -23,6 +26,20 @@
   }
 
   const tours={
+    'handoff-manager':[
+      {sel:'.quick-role-waiter',title:'Теперь — кабинет официанта',text:'Задание уже назначено. Нажмите «Официант». Красная цифра показывает, сколько активных тестов и аттестаций ждут выполнения.'}
+    ],
+    'handoff-staff-select':[
+      {sel:'.staff-select-head',title:'Задание уже ждёт сотрудника',text:'Система сама показывает, сколько новых заданий сейчас у официантов.'},
+      {sel:'.handoff-target',title:'Выберите нужного официанта',text:'Красная метка указывает сотрудника, которому управляющий только что назначил задание.'}
+    ],
+    'handoff-staff-pin':[
+      {sel:'.pin-panel',title:'Войдите как сотрудник',text:'Введите персональный PIN. После входа программа сразу покажет новое задание от управляющего.'}
+    ],
+    'handoff-staff-home':[
+      {sel:'.attestation-inbox, .notification-card',title:'Вот назначенная проверка',text:'Новое задание пришло через Firebase. Если это аттестация — результат изменит рейтинг; если тест — это только тренировка.'},
+      {sel:'.attestation-inbox .primary, .notification-card .primary',title:'Продолжите сценарий',text:'Нажмите «Начать аттестацию» или «Начать» — дальше приложение само проведёт по проверке.'}
+    ],
     'roles':[
       {sel:'.role-intro',title:'Restaurant Academy',text:'Демонстрация начинается здесь. Выберите роль и посмотрите продукт глазами управляющего или сотрудника.'},
       {sel:'.role-card:nth-child(1)',title:'Кабинет управляющего',text:'Здесь руководитель видит команду, рейтинги, отправляет тесты и назначает официальные аттестации.'},
@@ -160,5 +177,6 @@
 
   const realRender=render;
   render=function(){realRender();ensureUI();maybe()};
+  window.RAOnboarding={startKey:(key,force=true)=>start(key,force),currentKey:screenKey};
   ensureUI();maybe();
 })();
