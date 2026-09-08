@@ -242,7 +242,7 @@
     state.route='roles';
     save();
     render();
-    window.scrollTo({top:0,behavior:'smooth'});
+    window.scrollTo({top:0,behavior:'auto'});
     setTimeout(()=>start('roles',true),320);
   };
   window.RAOnboarding={
