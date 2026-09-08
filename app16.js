@@ -228,22 +228,30 @@
 
   const realRender=render;
   render=function(){realRender();ensureUI();maybe()};
-  window.restartAcademyTour=function(){
+  window.restartAcademyTour=async function(){
     finish();
     saveSeen({});
     state.demoHandoff=null;
     state.assignedTests=[];
+    state.testResults=[];
     state.activeAssignedTest=null;
     state.activeAttestation=null;
     state.expandedKnowledgeKey='';
+    if(window.RA_DEMO_BASE_EMPLOYEES) state.employees=JSON.parse(JSON.stringify(window.RA_DEMO_BASE_EMPLOYEES));
     state.auth=null;
     state.role=null;
-    state.currentEmployee=null;
+    state.currentEmployee='e1';
     state.route='roles';
     save();
     render();
     window.scrollTo({top:0,behavior:'auto'});
-    setTimeout(()=>start('roles',true),320);
+    try{
+      if(window.RAResetDemoCloud) await window.RAResetDemoCloud();
+    }catch(e){
+      console.warn('[RA Demo reset]',e);
+    }
+    render();
+    setTimeout(()=>start('roles',true),180);
   };
   window.RAOnboarding={
     startKey:(key,force=true)=>start(key,force),
