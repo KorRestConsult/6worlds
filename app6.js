@@ -57,7 +57,7 @@ function showBlock(area,block){
   if(!box)return;
   box.innerHTML=blockHTML(area,block);
   document.querySelectorAll('.toolbar .chip').forEach(x=>x.classList.toggle('on',x.textContent.trim()===block));
-  box.scrollIntoView({behavior:'smooth',block:'start'});
+  box.scrollIntoView({behavior:'auto',block:'start'});
 }
 
 function openEmployeeManager(id){
