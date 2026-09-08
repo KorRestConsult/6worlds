@@ -252,9 +252,12 @@
   window.restartAcademyTour=async function(){
     finish();
     saveSeen({});
+    state.demoRunId='run_'+Date.now()+'_'+Math.random().toString(36).slice(2,8);
+    state.demoIsolationVersion=typeof DEMO_ISOLATION_VERSION!=='undefined'?DEMO_ISOLATION_VERSION:'run-v1';
     state.demoHandoff=null;
     state.assignedTests=[];
     state.testResults=[];
+    state.activeQuiz=null;
     state.activeAssignedTest=null;
     state.activeAttestation=null;
     state.expandedKnowledgeKey='';
