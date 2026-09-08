@@ -105,6 +105,29 @@
 
   function docsToItems(snap){return snap.docs.map(d=>cleanDoc({id:d.id,...d.data()}));}
 
+  window.RAResetDemoCloud=async function(){
+    const base=window.RA_DEMO_BASE_EMPLOYEES?JSON.parse(JSON.stringify(window.RA_DEMO_BASE_EMPLOYEES)):(state.employees||[]);
+    applyingRemote=true;
+    try{
+      state.employees=base;
+      state.assignedTests=[];
+      state.testResults=[];
+      rawSave();
+      await Promise.all([
+        replaceCollection('employees',state.employees),
+        replaceCollection('assignments',[]),
+        replaceCollection('testResults',[])
+      ]);
+      lastEmployees=signature(state.employees);
+      lastAssignments=signature([]);
+      lastResults=signature([]);
+      await root.set({name:'Restaurant Academy Demo',projectId:EXPECTED_PROJECT,updatedAt:serverTimestamp()},{merge:true});
+      window.RACloud.status='online';
+    }finally{
+      applyingRemote=false;
+    }
+  };
+
   async function initialLoad(){
     window.RACloud.status='connecting';
     try{
