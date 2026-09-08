@@ -96,7 +96,7 @@
     const questions=q.questionSet||buildDemoQuestions(t);let correct=0;
     questions.forEach((question,i)=>{const ci=question.correctIndex??question.options.indexOf(question.correct);if(q.answers[i]===ci)correct++});
     t.status='done';t.correct=correct;t.total=questions.length;t.score=Math.round(correct/questions.length*100);t.completedAt=`${today()} ${testTime()}`;t.managerSeen=false;
-    state.testResults.push({testId:t.id,employeeId:t.employeeId,area:t.area,block:t.block,correct,total:t.total,score:t.score,completedAt:t.completedAt,source:'slow'});
+    state.testResults.push({testId:t.id,runId:state.demoRunId||null,employeeId:t.employeeId,area:t.area,block:t.block,correct,total:t.total,score:t.score,completedAt:t.completedAt,source:'slow'});
     state.route='assigned-test-result';save();render();showToast('Тест Slow завершён. Рейтинг не изменился.');
   }
 
