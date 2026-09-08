@@ -25,6 +25,21 @@
     }
   }
 
+  function setImportant(el,prop,value){
+    if(el.style.getPropertyValue(prop)!==value||el.style.getPropertyPriority(prop)!=='important'){
+      el.style.setProperty(prop,value,'important');
+    }
+  }
+
+  function normalizeSpotShape(r){
+    let radius='20px';
+    if(Math.abs(r.width-r.height)<=24&&Math.max(r.width,r.height)<=230) radius='999px';
+    else if(r.height<=90) radius=Math.max(14,Math.min(36,r.height/2))+'px';
+    setImportant(spot,'border-radius',radius);
+    setImportant(spot,'background','transparent');
+    setImportant(spot,'box-shadow','0 0 0 9999px rgba(10,10,10,.60),0 12px 44px rgba(0,0,0,.22)');
+  }
+
   function placeTabletCard(){
     raf=0;
     if(!root?.classList.contains('show')||!spot||!card)return;
@@ -38,6 +53,7 @@
     const view=vv();
     const edge=16,gap=18;
     const target=spot.getBoundingClientRect();
+    normalizeSpotShape(target);
     const width=Math.min(470,Math.max(300,view.width-edge*2));
     const centerX=view.left+view.width/2;
 
