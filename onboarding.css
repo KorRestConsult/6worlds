@@ -53,3 +53,15 @@ body.ra-tour-lock .ra-tour-card button{
 @media(min-width:701px){
   .ra-tour-card{max-width:390px}
 }
+
+/* Mobile help: keep it inside the safe app viewport and make its purpose legible. */
+@media(max-width:700px){
+  .ra-tour-help{
+    position:fixed!important;
+    top:max(76px,calc(env(safe-area-inset-top) + 58px))!important;
+    right:max(12px,env(safe-area-inset-right))!important;
+    width:44px!important;height:44px!important;
+    z-index:8500!important;
+  }
+}
+.ra-next-action,.ra-next-action *{pointer-events:auto!important}
