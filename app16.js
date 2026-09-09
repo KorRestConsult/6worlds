@@ -1,6 +1,6 @@
 // Guided onboarding for the presentation build. First visit per screen + manual replay via ?.
 (function(){
-  const TOUR_VERSION='ra-tour-v3';
+  const TOUR_VERSION='ra-tour-v4';
   const SEEN_KEY=TOUR_VERSION+':seen';
   const OPTOUT_KEY='ra-tour:optout';
 
@@ -144,7 +144,7 @@
     root.querySelector('.ra-tour-repeat').onclick=()=>place();
     root.querySelector('.ra-tour-back').onclick=prev;
     root.querySelector('.ra-tour-next').onclick=next;
-    const help=document.createElement('button');help.id='raTourHelp';help.className='ra-tour-help';help.type='button';help.textContent='?';help.setAttribute('aria-label','Показать подсказки');help.onclick=()=>start(screenKey(),true);document.body.appendChild(help);
+    const help=document.createElement('button');help.id='raTourHelp';help.className='ra-tour-help';help.type='button';help.textContent='?';help.setAttribute('aria-label','Помощь по текущему экрану');help.setAttribute('title','Помощь по текущему экрану');help.onclick=()=>start(screenKey(),true);document.body.appendChild(help);
   }
   let placing=false;
   function targetNeedsScroll(r){
@@ -248,8 +248,18 @@
     const steps=active?availableSteps(active):[],step=steps[index];
     if(active){const m=seenMap();m[active]=true;saveSeen(m)}
     if(reason==='skip') setOptOut(true);
+    document.querySelectorAll('.ra-next-action').forEach(x=>x.classList.remove('ra-next-action'));
     active=null;unlockTourInteraction();document.getElementById('raTour')?.classList.remove('show');
-    if(reason!=='skip') setTimeout(()=>pulseNextAction(step),80);
+    if(reason!=='skip') setTimeout(()=>{
+      pulseNextAction(step);
+      // The highlighted action must stay tappable after the tour overlay closes.
+      const el=step?.action?document.querySelector(step.sel):null;
+      if(el){
+        el.style.pointerEvents='auto';
+        const clickable=el.matches?.('button,a,[onclick]')?el:el.querySelector?.('button,a,[onclick]');
+        if(clickable) clickable.style.pointerEvents='auto';
+      }
+    },80);
   }
   function next(){if(!active)return;const steps=availableSteps(active),step=steps[index];if(step?.action){finish();return}const n=steps.length;if(index>=n-1)finish();else{index++;place()}}
   function prev(){if(active&&index>0){index--;place()}}
