@@ -1,0 +1,26 @@
+name: Export demo bundle
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Package demo sources
+        run: |
+          mkdir -p export
+          cp index.html export/
+          cp *.css export/ 2>/dev/null || true
+          cp *.js export/ 2>/dev/null || true
+      - uses: actions/upload-artifact@v4
+        with:
+          name: korrest-demo-export
+          path: export
+          retention-days: 1
