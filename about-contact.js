@@ -56,9 +56,9 @@
 
   function finalContactHtml(){
     return `<div class="korrest-final-contact" data-korrest-final-contact>
-      <span>КТО СТОИТ ЗА ПРОДУКТОМ</span>
+      <span>СВЯЗАТЬСЯ СО МНОЙ</span>
       <h2>Илья Коробицин · KORREST AI</h2>
-      <p>HoReCa-консультант по сервису, продажам и обучению персонала. Если хотите проверить «Департамент Сервиса» на своём ресторане — свяжитесь со мной напрямую.</p>
+      <p>Покажу, как перенести в систему ваше меню, стандарты и команду.</p>
       <div class="korrest-final-actions">
         <a class="primary" href="${TELEGRAM}" target="_blank" rel="noopener">Telegram · ${TG_HANDLE}</a>
         <a href="${PHONE}">${PHONE_DISPLAY}</a>
@@ -72,7 +72,7 @@
     if(!body)return;
     const explore=body.querySelector('.ra-finale-explore');
     if(!explore||body.querySelector('[data-korrest-final-contact]'))return;
-    explore.insertAdjacentHTML('afterend',finalContactHtml());
+    explore.insertAdjacentHTML('beforebegin',finalContactHtml());
   }
 
   function install(){
