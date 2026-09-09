@@ -33,12 +33,14 @@
       const back=e.target.closest('[data-finale-back]');
       const close=e.target.closest('[data-finale-close]');
       const restart=e.target.closest('[data-finale-restart]');
+      const exploreBtn=e.target.closest('[data-finale-explore]');
       const pick=e.target.closest('[data-finale-pain]');
       const copy=e.target.closest('[data-finale-copy]');
       if(next){step=Math.min(3,step+1);render()}
       if(back){step=Math.max(0,step-1);render()}
       if(close)hide();
-      if(restart){hide();setTimeout(()=>window.restartAcademyTour?.(),120)}
+      if(restart){hide();localStorage.removeItem('ra-tour:optout');setTimeout(()=>window.restartAcademyTour?.(),120)}
+      if(exploreBtn)explore();
       if(pick){choice=pick.dataset.finalePain;render()}
       if(copy)copyPilot();
     });
@@ -49,55 +51,56 @@
 
   function slide0(){
     return `<div class="ra-finale-kicker">ДЕМОНСТРАЦИЯ ЗАВЕРШЕНА</div>
-      <h1>Цикл замкнулся.</h1>
-      <p class="ra-finale-lead">Управляющий назначил аттестацию. Сотрудник увидел её в своём кабинете, повторил материал, прошёл аттестацию, рейтинг пересчитался, а результат вернулся управляющему.</p>
+      <h1>Теперь это не «кажется». Это факт.</h1>
+      <p class="ra-finale-lead">Управляющий назначил аттестацию. Сотрудник увидел её в своём кабинете, повторил материал, прошёл проверку, рейтинг пересчитался, а результат вернулся управляющему.</p>
       <div class="ra-cycle">
         <div><b>01</b><span>Назначить</span></div><i>→</i><div><b>02</b><span>Получить</span></div><i>→</i><div><b>03</b><span>Аттестовать</span></div><i>→</i><div><b>04</b><span>Пересчитать</span></div><i>→</i><div><b>05</b><span>Увидеть факт</span></div>
       </div>
-      <div class="ra-finale-quote">До этой минуты вы просто надеялись, что сотрудник знает меню. Теперь это число, история и конкретный слабый блок. Этим уже можно управлять.</div>`;
+      <div class="ra-finale-quote">Раньше управляющий мог только надеяться, что сотрудник знает меню. Теперь есть число, история и конкретный слабый блок. Этим уже можно управлять.</div>`;
   }
 
   function slide1(){
     return `<div class="ra-finale-kicker">ПРОБЛЕМА → ПРИЧИНА → РЕШЕНИЕ → РЕЗУЛЬТАТ</div>
-      <h1>Не приложение. Управленческий контур.</h1>
+      <h1>Это не обучалка. Это управленческий контур знаний.</h1>
       <div class="ra-ppr-grid">
-        <article><span>Проблема</span><b>Команда «вроде знает» меню и стандарты.</b><p>Пока не случается ошибка перед гостем или просадка продаж.</p></article>
+        <article><span>Проблема</span><b>Команда «вроде знает» меню и стандарты.</b><p>Пока ошибка не происходит перед гостем или не становится заметна просадка в работе.</p></article>
         <article><span>Причина</span><b>Обучение и контроль живут отдельно.</b><p>Чаты, файлы, устные проверки и память управляющего не дают единой картины.</p></article>
         <article><span>Решение</span><b>Один маршрут знаний.</b><p>Ваше меню, ваши стандарты, обучение, тесты, официальная аттестация и кабинет управляющего.</p></article>
-        <article class="result"><span>Результат</span><b>Видно, кого и чему учить.</b><p>Новичок понимает путь, сотрудник — свой уровень, управляющий — слабые места команды.</p></article>
+        <article class="result"><span>Результат</span><b>Понятно, кого и чему учить.</b><p>Новичок видит путь, сотрудник — свой уровень, управляющий — слабые места, собственник — работающую систему.</p></article>
       </div>`;
   }
 
   function slide2(){
     return `<div class="ra-finale-kicker">ТРИ ВОПРОСА СОБСТВЕННИКУ</div>
-      <h1>Ответьте себе без презентации.</h1>
+      <h1>Что из этого вы сейчас контролируете без ручной работы?</h1>
       <div class="ra-yes-list">
-        <div><b>01</b><p>Хотите видеть, кто <strong>реально знает</strong> меню, а не кто увереннее отвечает управляющему?</p></div>
-        <div><b>02</b><p>Хотите, чтобы новый сотрудник учился <strong>по одному стандарту</strong>, а не по версии того, кто сегодня старший?</p></div>
-        <div><b>03</b><p>Хотите получать результат аттестации <strong>без ручного сбора</strong> таблиц, чатов и бумажек?</p></div>
+        <div><b>01</b><p>Кто <strong>реально знает</strong> меню, а кто просто увереннее отвечает на устной проверке?</p></div>
+        <div><b>02</b><p>Все ли новички учатся <strong>по одному стандарту</strong>, независимо от смены и наставника?</p></div>
+        <div><b>03</b><p>Можете ли вы за минуту увидеть <strong>слабое место конкретного сотрудника</strong> и назначить ему точечное действие?</p></div>
       </div>
-      <div class="ra-finale-quote">Если хотя бы на два вопроса ответ «да», вам нужен не ещё один разовый тренинг. Вам нужна система, которая продолжает работать после тренинга.</div>`;
+      <div class="ra-finale-quote">Если ответ хотя бы на два вопроса — «нет», проблема не в ещё одном тренинге. Нужна система, которая продолжает работать между тренингами.</div>`;
   }
 
   function slide3(){
     const selected=choice&&painMap[choice];
     return `<div class="ra-finale-kicker">СЛЕДУЮЩИЙ ШАГ</div>
-      <h1>Не покупайте презентацию. Проверьте систему на своём ресторане.</h1>
-      <p class="ra-finale-lead">Берём ваше настоящее меню, одну смену и одну реальную управленческую боль. Запускаем пилот. Через короткий цикл у вас будет не обещание, а цифры: кто учится, кто знает, где просадка и что изменилось. После этого вы сами решаете, стоит ли масштабировать.</p>
-      <div class="ra-pain-title">С чего у вас логичнее начать?</div>
+      <h1>Проверять надо не презентацию. Проверять надо на своём ресторане.</h1>
+      <p class="ra-finale-lead">Берём ваше настоящее меню, одну смену и одну реальную управленческую боль. Запускаем пилот. После короткого цикла у вас остаются не обещания, а факты: кто учится, кто знает, где просадка и что изменилось.</p>
+      <div class="ra-pain-title">С чего у вас логичнее начать пилот?</div>
       <div class="ra-pain-grid">
         ${Object.entries(painMap).map(([k,v])=>`<button data-finale-pain="${k}" class="${choice===k?'on':''}"><span>${v.label}</span><i>${choice===k?'✓':'→'}</i></button>`).join('')}
       </div>
-      ${selected?`<div class="ra-pilot"><span>ПИЛОТ · ${selected.label.toUpperCase()}</span><h2>${selected.text}</h2><p>Фиксируем задачу, команду и критерий результата. После пилота — конкретный разговор о масштабе внедрения.</p><div class="ra-pilot-actions"><button class="primary" data-finale-copy>Зафиксировать план пилота</button><button class="ghost" data-finale-restart>Пройти демо ещё раз</button></div></div>`:'<div class="ra-pilot muted"><p>Выберите главную боль — финал сразу соберёт под неё первый шаг.</p></div>'}`;
+      ${selected?`<div class="ra-pilot"><span>ПИЛОТ · ${selected.label.toUpperCase()}</span><h2>${selected.text}</h2><p>Фиксируем задачу, команду и критерий результата. После пилота — конкретный разговор о масштабе внедрения.</p><div class="ra-pilot-actions"><button class="primary" data-finale-copy>Зафиксировать план пилота</button><button class="ghost" data-finale-restart>Пройти демо ещё раз</button></div></div>`:'<div class="ra-pilot muted"><p>Выберите главную боль — финал сразу соберёт под неё первый шаг пилота.</p></div>'}
+      <div class="ra-finale-explore"><span>А СЕЙЧАС — ПОТЫКАЙТЕ САМИ</span><h2>Тур закончился. Система остаётся открытой.</h2><p>Зайдите в сотрудников, откройте меню, посмотрите рейтинги, назначьте тесты и аттестации. Без подсказок — как если бы это уже был ваш ресторан.</p><div class="ra-pilot-actions"><button class="primary" data-finale-explore>Открыть систему самому</button><button class="ghost" data-finale-restart>Повторить тур с подсказками</button></div></div>`;
   }
 
   function render(){
     ensure();
     const slides=[slide0,slide1,slide2,slide3];
     root.innerHTML=`<div class="ra-finale-shell">
-      <div class="ra-finale-top"><div class="ra-finale-brand"><span>RA</span><div><b>Restaurant Academy</b><small>система обучения и контроля команды</small></div></div><button class="ra-finale-x" data-finale-close aria-label="Закрыть">×</button></div>
+      <div class="ra-finale-top"><div class="ra-finale-brand"><span>K AI</span><div><b>KORREST AI</b><small>Restaurant Academy · система знаний команды</small></div></div><button class="ra-finale-x" data-finale-close aria-label="Закрыть">×</button></div>
       <div class="ra-finale-body">${slides[step]()}</div>
-      <div class="ra-finale-bottom">${dots()}<div class="ra-finale-nav"><button class="ghost" data-finale-back ${step===0?'disabled':''}>Назад</button>${step<3?'<button class="primary" data-finale-next>'+(step===2?'К предложению':'Далее')+'</button>':'<button class="ghost" data-finale-close>Вернуться в кабинет</button>'}</div></div>
+      <div class="ra-finale-bottom">${dots()}<div class="ra-finale-nav"><button class="ghost" data-finale-back ${step===0?'disabled':''}>Назад</button>${step<3?'<button class="primary" data-finale-next>'+(step===2?'К следующему шагу':'Далее')+'</button>':'<button class="primary" data-finale-explore>Потыкать самому</button>'}</div></div>
     </div>`;
   }
 
@@ -121,9 +124,24 @@
     }
   }
 
+  function explore(){
+    stopTour();
+    hide();
+    try{localStorage.setItem('ra-tour:optout','1')}catch(e){}
+    try{
+      state.demoHandoff=null;
+      state.role='Управляющий';
+      state.auth='manager';
+      state.route='home';
+      save();render();
+      window.scrollTo({top:0,behavior:'auto'});
+      setTimeout(()=>{try{showToast('Свободный режим: исследуйте систему без подсказок')}catch(e){}},100);
+    }catch(e){}
+  }
+
   async function copyPilot(){
     const selected=choice&&painMap[choice];if(!selected)return;
-    const text=`Restaurant Academy — пилот\nЗадача: ${selected.label}\nПервый шаг: ${selected.text}\nДальше: фиксируем состав команды, объём контента и критерий результата; после пилота решаем масштаб внедрения.`;
+    const text=`KORREST AI · Restaurant Academy — пилот\nЗадача: ${selected.label}\nПервый шаг: ${selected.text}\nДальше: фиксируем состав команды, объём контента и критерий результата; после пилота решаем масштаб внедрения.`;
     try{
       await navigator.clipboard.writeText(text);
       const btn=root.querySelector('[data-finale-copy]');
@@ -157,6 +175,6 @@
     }
   }
 
-  window.RASalesFinale={show,hide};
+  window.RASalesFinale={show,hide,explore};
   installHook();
 })();
