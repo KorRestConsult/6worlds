@@ -127,8 +127,39 @@
   const baseEmployeeCard=employeeCard;
   employeeCard=function(e){
     const html=baseEmployeeCard(e),r=rating(e);
-    return html.replace('</div><span class="employee-compact-arrow">',''+scaleHTML(r,'Общий уровень')+'</div><span class="employee-compact-arrow">');
+    return html
+      .replace('class="employee-compact"', 'class="employee-compact" data-employee-id="'+e.id+'"')
+      .replace('</div><span class="employee-compact-arrow">',''+scaleHTML(r,'Общий уровень')+'</div><span class="employee-compact-arrow">');
   };
+
+  // iPhone/Safari fallback: the whole employee card must always open the employee profile
+  // from the manager cabinet, even if an older inline click handler gets swallowed.
+  function openManagerEmployeeCard(card){
+    if(!card||state.auth!=='manager')return;
+    const id=card.dataset.employeeId;
+    if(!id)return;
+    state.currentEmployee=id;
+    state.route='employee-detail';
+    save();
+    closeModal();
+    render();
+    window.scrollTo({top:0,behavior:'auto'});
+  }
+  document.addEventListener('click',function(e){
+    const card=e.target&&e.target.closest&&e.target.closest('.employee-compact[data-employee-id]');
+    if(!card)return;
+    e.preventDefault();
+    e.stopPropagation();
+    openManagerEmployeeCard(card);
+  },true);
+  document.addEventListener('touchend',function(e){
+    const card=e.target&&e.target.closest&&e.target.closest('.employee-compact[data-employee-id]');
+    if(!card)return;
+    if(document.getElementById('raTour')?.classList.contains('show'))return;
+    e.preventDefault();
+    e.stopPropagation();
+    openManagerEmployeeCard(card);
+  },{passive:false,capture:true});
 
   render();
 })();
