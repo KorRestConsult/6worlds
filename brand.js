@@ -3,6 +3,10 @@
   const FROM='Restaurant Academy';
   const TO='Департамент Сервиса';
 
+  function setText(el,value){
+    if(el && el.textContent!==value) el.textContent=value;
+  }
+
   function replaceTextNode(node){
     if(node.nodeType===Node.TEXT_NODE&&node.nodeValue&&node.nodeValue.includes(FROM)){
       node.nodeValue=node.nodeValue.split(FROM).join(TO);
@@ -27,29 +31,40 @@
   }
 
   function paintHeader(){
-    document.title='KORREST AI — Департамент Сервиса';
+    if(document.title!=='KORREST AI — Департамент Сервиса')document.title='KORREST AI — Департамент Сервиса';
     const brand=document.querySelector('.brand');
     if(brand){
-      const logo=brand.querySelector('.logo');
-      const name=brand.querySelector('b');
-      const sub=brand.querySelector('small');
-      if(logo)logo.textContent='K';
-      if(name)name.textContent='KORREST AI';
-      if(sub)sub.textContent='ДЕПАРТАМЕНТ СЕРВИСА · DEMO';
+      setText(brand.querySelector('.logo'),'K');
+      setText(brand.querySelector('b'),'KORREST AI');
+      setText(brand.querySelector('small'),'ДЕПАРТАМЕНТ СЕРВИСА · DEMO');
     }
     const avatar=document.getElementById('topAvatar');
-    if(avatar&&avatar.textContent.trim()==='RA')avatar.textContent='K';
+    if(avatar&&avatar.textContent.trim()==='RA')setText(avatar,'K');
   }
 
   function apply(){paintHeader();walk(document.body)}
 
+  let scheduled=false;
+  function scheduleApply(nodes){
+    if(nodes)nodes.forEach(walk);
+    if(scheduled)return;
+    scheduled=true;
+    requestAnimationFrame(()=>{scheduled=false;paintHeader()});
+  }
+
   const mo=new MutationObserver(muts=>{
-    paintHeader();
-    muts.forEach(m=>m.addedNodes.forEach(walk));
+    const nodes=[];
+    muts.forEach(m=>m.addedNodes.forEach(n=>nodes.push(n)));
+    scheduleApply(nodes);
   });
 
-  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>{apply();mo.observe(document.body,{childList:true,subtree:true})});
-  else {apply();mo.observe(document.body,{childList:true,subtree:true})}
+  function start(){
+    apply();
+    mo.observe(document.body,{childList:true,subtree:true});
+  }
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start,{once:true});
+  else start();
 
   // Keep copied pilot text under the same public brand.
   try{
