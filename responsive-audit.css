@@ -1,0 +1,410 @@
+/* Responsive QA pass — phones + tablets, portrait + landscape.
+   Loaded last so it can stabilize the accumulated product CSS without changing product logic. */
+
+html,body{
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  overflow-x:clip;
+  -webkit-text-size-adjust:100%;
+  text-size-adjust:100%;
+}
+body{min-height:100dvh}
+.app,#root,main,.top,.section,.grid,.role-grid,.team-grid,.menu-grid,.knowledge-grid,.facts,.toolbar,.modal,.quiz-shell{
+  min-width:0;
+  max-width:100%;
+}
+#root{width:100%;overflow-anchor:none}
+img,svg,video,canvas{max-width:100%;height:auto}
+button,a,input,select,textarea{max-width:100%}
+h1,h2,h3,p,b,strong,small,span,label{overflow-wrap:break-word}
+.hero h1,.managerhero h1,.employee-detail-head h1,.quiz-card h1,.ra-finale-body h1{text-wrap:balance}
+.section-title p,.head p,.managerhero p,.hero p,.notification-card p,.assigned-test p{text-wrap:pretty}
+.team-grid,.menu-grid,.knowledge-grid,.role-grid{align-items:stretch}
+.menu-card,.employee-compact,.role-card,.knowledge-card{height:100%}
+
+/* Stable shell/header — the brand may shrink, actions may not push the viewport wider. */
+.top{
+  width:100%;
+  min-height:66px;
+  gap:10px;
+}
+.brand{flex:1 1 auto;min-width:0;max-width:100%}
+.brand>span:last-child{min-width:0}
+.brand b,.brand small{display:block;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.top-actions{flex:0 1 auto;min-width:0;max-width:62%;justify-content:flex-end}
+.rolebtn,.quick-role-switch{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.avatar{flex:0 0 auto}
+
+/* Tap targets + iOS input zoom prevention. */
+@media (pointer:coarse){
+  button,.rolebtn,.ghost,.primary,.danger,.chip,.iconbtn,.closebtn{min-height:44px}
+  input,select,textarea,.field input,.field select{font-size:16px!important}
+  body:has(.modal-wrap.open),body.ra-finale-lock{overflow:hidden!important}
+}
+
+/* Common content/readability. */
+.card,.role-card,.employee-compact,.knowledge-card,.menu-card,.notification-card,.assigned-test,.history-card,.test-results-card{min-width:0}
+.ra-rating-scale{min-width:0!important;width:100%}
+.employee-compact-main,.knowledge-row-main,.notification-card>div,.assigned-test>div{min-width:0}
+.employee-compact h3,.notification-card h3,.assigned-test h3{line-height:1.14}
+.mini-rating{line-height:1.25}
+.toolbar{max-width:100%;scroll-snap-type:x proximity}
+.toolbar .chip{scroll-snap-align:start}
+.modal-actions,.split-actions,.settings-actions,.ra-assignment-actions{min-width:0}
+
+/* Help must never sit on top of an employee rating on a phone. */
+@media(max-width:767px){
+  .ra-tour-help{
+    top:auto!important;
+    right:max(12px,env(safe-area-inset-right))!important;
+    bottom:calc(88px + env(safe-area-inset-bottom))!important;
+    width:40px!important;
+    height:40px!important;
+    opacity:.92;
+  }
+  .ra-tour.show~.ra-tour-help,body:has(.modal-wrap.open) .ra-tour-help{opacity:0!important;pointer-events:none!important}
+}
+
+/* PHONE — 320–767 CSS px */
+@media(max-width:767px){
+  :root{--r:20px}
+  .app{width:100%;max-width:none!important;padding-left:0!important}
+  .top{
+    min-height:60px;
+    padding-left:max(12px,env(safe-area-inset-left))!important;
+    padding-right:max(12px,env(safe-area-inset-right))!important;
+    padding-bottom:9px!important;
+  }
+  .logo{width:38px;height:38px;border-radius:12px;flex:0 0 auto}
+  .brand{gap:8px}
+  .brand b{font-size:12px}
+  .brand small{font-size:8px}
+  .top-actions{gap:5px;max-width:58%}
+  .rolebtn,.quick-role-switch{font-size:9px;padding:8px 9px;max-width:104px}
+  .avatar{width:34px;height:34px;border-radius:11px}
+
+  main{
+    width:100%;
+    padding-left:max(12px,env(safe-area-inset-left))!important;
+    padding-right:max(12px,env(safe-area-inset-right))!important;
+    padding-top:12px!important;
+    padding-bottom:calc(132px + env(safe-area-inset-bottom))!important;
+  }
+  .section{margin-top:18px!important}
+  .section-lined{padding-top:18px!important}
+  .section-title{gap:9px;margin-bottom:12px}
+  .section-title>span{width:27px;height:27px}
+  .section-title h2,.head h2{font-size:20px;line-height:1.08}
+  .section-title p,.head p{font-size:10px;line-height:1.4}
+  .head{align-items:flex-start;gap:10px;flex-wrap:wrap}
+  .head>.primary,.head>.ghost{flex:0 0 auto}
+
+  .hero,.managerhero{padding:20px!important;border-radius:23px!important}
+  .hero{gap:16px}
+  .hero h1,.managerhero h1{font-size:clamp(27px,8.2vw,34px)!important;line-height:1.02}
+  .hero p,.managerhero p{font-size:11px!important;line-height:1.52}
+  .scorebox{padding:16px;border-radius:19px}
+  .scorebox strong{font-size:38px}
+
+  .role-grid{grid-template-columns:1fr!important;gap:10px!important}
+  .role-card,.role-card:first-child{
+    grid-column:auto!important;
+    min-height:126px!important;
+    padding:16px!important;
+    border-radius:20px!important;
+    gap:10px!important;
+  }
+  .role-card .role-no{font-size:9px}
+  .role-card h3{font-size:20px!important;line-height:1.08}
+  .role-card p{font-size:10px!important;line-height:1.45}
+  .role-arrow{font-size:21px}
+  .tour-launch{width:100%;max-width:none}
+  .tour-launch b{font-size:11px}.tour-launch small{font-size:9px}
+
+  .g2,.g3,.manager-panel,.knowledge-grid,.menu-grid,.team-grid{grid-template-columns:1fr!important}
+  .card{padding:15px}
+  .metric strong{font-size:27px}.metric span{font-size:10px}.metric small{font-size:9px}
+
+  .toolbar{
+    flex-wrap:nowrap!important;
+    overflow-x:auto!important;
+    overflow-y:hidden;
+    padding:1px 1px 10px!important;
+    margin-right:-12px;
+    padding-right:12px!important;
+    scrollbar-width:none;
+    -webkit-overflow-scrolling:touch;
+  }
+  .toolbar::-webkit-scrollbar{display:none}
+  .toolbar .chip{flex:0 0 auto;white-space:nowrap;font-size:10px;padding:9px 12px}
+
+  .menu-grid{gap:11px}
+  .menu-card{border-radius:20px!important}
+  .photo{height:clamp(165px,52vw,220px)!important}
+  .menubody{padding:14px}
+  .menubody h3{font-size:16px;line-height:1.18}
+  .menubody p{font-size:10px;line-height:1.5}
+  .menumeta{font-size:9px}
+
+  .employee-compact{
+    grid-template-columns:48px minmax(0,1fr) auto!important;
+    gap:10px!important;
+    padding:14px!important;
+    border-radius:20px!important;
+  }
+  .employee-compact .emp-photo{width:48px!important;height:48px!important;border-radius:15px!important}
+  .employee-compact h3{font-size:16px!important;margin-bottom:4px}
+  .employee-compact p{font-size:9px!important;margin-bottom:7px}
+  .employee-compact-score{min-width:56px!important}
+  .employee-compact-score strong{font-size:22px!important}
+  .employee-compact-score small{font-size:7px}
+  .employee-compact-arrow{right:11px;bottom:9px}
+  .emp-ratings{gap:5px}.mini-rating{font-size:8.5px;padding:4px 7px}
+  .employee-compact .ra-rating-scale{margin-top:8px}
+  .ra-rating-scale-top{font-size:8px}.ra-rating-scale-top b{font-size:9px}
+
+  .employee-detail-head{
+    grid-template-columns:50px minmax(0,1fr)!important;
+    gap:11px!important;
+    padding:18px!important;
+    border-radius:23px!important;
+  }
+  .employee-detail-head .emp-photo{width:50px!important;height:50px!important;border-radius:16px!important}
+  .employee-detail-head h1{font-size:24px!important;line-height:1.05}
+  .employee-detail-head p{font-size:9px;line-height:1.4}
+  .detail-total{
+    grid-column:1/-1!important;
+    min-width:0!important;
+    text-align:left!important;
+    border-top:1px solid #ffffff20;
+    padding-top:12px;
+  }
+  .detail-total span{font-size:8px}.detail-total strong{font-size:30px!important;margin-top:4px}
+  .knowledge-card{padding:15px!important;border-radius:20px!important}
+  .knowledge-head h3{font-size:18px}.knowledge-head strong{font-size:22px}
+  .knowledge-row{grid-template-columns:minmax(0,1fr) auto auto!important;gap:8px!important;min-height:64px!important}
+  .knowledge-row b{font-size:10px}.knowledge-row small{font-size:8px;line-height:1.4}
+  .knowledge-row strong{font-size:14px;min-width:38px}
+  .knowledge-chevron{width:26px;height:26px}
+  .knowledge-actions{grid-template-columns:1fr!important}
+  .knowledge-actions button{width:100%;min-height:46px}
+
+  .history-card{padding:3px 13px;border-radius:20px}
+  .history-row{grid-template-columns:1fr auto!important;gap:8px!important;padding:12px 0}
+  .history-row time{grid-column:1/-1!important;font-size:8px}
+  .history-row b{font-size:10px}.history-row small{font-size:8px}.history-row strong{font-size:15px}
+  .settings-strip{align-items:flex-start!important;flex-direction:column!important}
+  .settings-actions{display:grid!important;grid-template-columns:1fr 1fr;width:100%}
+  .settings-actions .danger{grid-column:1/-1}
+  .settings-actions button{width:100%;min-width:0}
+
+  .notification-card{
+    grid-template-columns:40px minmax(0,1fr)!important;
+    gap:11px!important;
+    padding:14px!important;
+    border-radius:20px!important;
+    align-items:start!important;
+  }
+  .notification-badge{width:40px;height:40px;border-radius:13px}
+  .notification-card h3{font-size:17px}.notification-card p{font-size:10px;line-height:1.45}
+  .notification-card .ra-assignment-actions,.notification-card>.primary{grid-column:1/-1;width:100%}
+  .assigned-test{grid-template-columns:1fr!important;padding:14px!important}
+  .assigned-test h3{font-size:15px}.assigned-test p{font-size:10px;line-height:1.4}
+  .ra-assignment-actions{display:grid!important;grid-template-columns:1fr!important;width:100%}
+  .ra-assignment-actions button{width:100%!important;white-space:normal!important;min-height:46px}
+
+  .quiz-shell{padding:8px 0 calc(112px + env(safe-area-inset-bottom))}
+  .quiz-top{align-items:flex-start;margin-bottom:16px}
+  .quiz-card{padding:18px!important;border-radius:21px!important}
+  .quiz-card h1{font-size:23px!important;line-height:1.12}
+  .quiz-card .quiz-sub{font-size:10px}
+  .quiz-option{padding:14px;font-size:12px;line-height:1.35;border-radius:16px}
+  .quiz-option .letter{width:28px;height:28px}
+  .quiz-next{margin-top:14px}.quiz-next .primary{width:100%;min-width:0}
+  .quiz-result{padding:25px 16px}.quiz-result h1{font-size:27px}.quiz-result p{font-size:10px}
+
+  .modal-wrap.open{padding:0!important;align-items:flex-end!important}
+  .modal{
+    width:100%!important;
+    max-width:none!important;
+    max-height:calc(100dvh - max(8px,env(safe-area-inset-top)))!important;
+    border-radius:26px 26px 0 0!important;
+    padding:18px 16px calc(20px + env(safe-area-inset-bottom))!important;
+  }
+  .modal-head{gap:10px;padding-bottom:4px}
+  .modal h2{font-size:23px;line-height:1.08}
+  .modal p{font-size:10px!important;line-height:1.5}
+  .modal-actions{display:grid;grid-template-columns:1fr;width:100%}
+  .modal-actions button{width:100%;min-height:46px}
+  .facts,.ra-study-facts{grid-template-columns:1fr!important}
+  .detail-photo,.ra-study-photo{height:clamp(190px,55vw,250px)!important}
+  .fact span{font-size:8px}.fact b,.ra-study-facts .fact b{font-size:11px;line-height:1.5}
+
+  .nav{
+    width:calc(100% - 20px)!important;
+    max-width:520px!important;
+    bottom:max(8px,env(safe-area-inset-bottom))!important;
+    padding:6px!important;
+    border-radius:23px!important;
+  }
+  .nav button{min-height:52px!important;padding:7px 3px!important;font-size:8px!important;line-height:1.2}
+  .nav button b{font-size:16px!important}
+
+  .ra-tour-card{
+    width:calc(100vw - 24px)!important;
+    max-width:none!important;
+    max-height:min(56dvh,470px)!important;
+    border-radius:20px!important;
+    padding:15px!important;
+    overflow-y:auto!important;
+    overscroll-behavior:contain;
+  }
+  .ra-tour-card h3{font-size:18px!important;line-height:1.12;margin:8px 0 5px}
+  .ra-tour-card p{font-size:11px!important;line-height:1.45;margin-bottom:11px}
+  .ra-tour-top{gap:8px}.ra-tour-top-actions{gap:4px}
+  .ra-tour-repeat,.ra-tour-skip{font-size:8px!important;padding:6px 7px!important;min-height:34px!important}
+  .ra-tour-actions{gap:7px}.ra-tour-actions button{min-height:42px;font-size:10px;padding:8px 11px}
+  .ra-tour-card .ra-tour-next{min-width:112px!important}
+
+  .ra-sales-finale{padding:max(6px,env(safe-area-inset-top)) max(6px,env(safe-area-inset-right)) max(6px,env(safe-area-inset-bottom)) max(6px,env(safe-area-inset-left))}
+  .ra-finale-shell{max-height:calc(100dvh - 12px)!important;border-radius:22px!important}
+  .ra-finale-top,.ra-finale-bottom{padding:12px 13px!important}
+  .ra-finale-body{padding:21px 14px 18px!important}
+  .ra-finale-body h1{font-size:clamp(31px,10vw,38px)!important}
+  .ra-finale-lead{font-size:13px!important;line-height:1.5}
+  .ra-cycle{grid-template-columns:1fr!important}
+  .ra-cycle div{min-height:0!important}
+  .ra-ppr-grid,.ra-pain-grid{grid-template-columns:1fr!important}
+  .ra-finale-quote{font-size:15px;padding:18px}
+  .ra-yes-list>div{grid-template-columns:38px minmax(0,1fr)!important;gap:10px;padding:13px!important}
+  .ra-finale-nav{min-width:0}.ra-finale-nav button{min-width:0!important}
+}
+
+/* Extra-narrow phones. */
+@media(max-width:374px){
+  .top{padding-left:9px!important;padding-right:9px!important}
+  .logo{width:35px;height:35px}
+  .brand b{font-size:11px}.brand small{display:none}
+  .top-actions{max-width:61%}
+  #roleBtn{max-width:78px}.quick-role-switch{max-width:88px}
+  .rolebtn,.quick-role-switch{padding:7px 8px;font-size:8px}
+  main{padding-left:10px!important;padding-right:10px!important}
+  .employee-compact{grid-template-columns:44px minmax(0,1fr) auto!important;padding:12px!important}
+  .employee-compact .emp-photo{width:44px!important;height:44px!important}
+  .employee-compact h3{font-size:15px!important}
+  .employee-compact-score{min-width:50px!important}.employee-compact-score strong{font-size:20px!important}
+  .mini-rating{font-size:8px;padding:4px 6px}
+  .nav{width:calc(100% - 14px)!important}
+  .nav button{font-size:7.5px!important}
+}
+
+/* TABLET — portrait and landscape. Keep density useful, but never tiny. */
+@media(min-width:768px) and (max-width:1180px){
+  .app{max-width:1180px!important;padding-left:0!important;padding-bottom:116px!important}
+  .top{
+    min-height:68px;
+    padding:12px max(22px,env(safe-area-inset-right)) 12px max(22px,env(safe-area-inset-left))!important;
+  }
+  .brand b{font-size:15px}.brand small{font-size:9px}
+  .logo{width:44px;height:44px}
+  .rolebtn,.quick-role-switch,.ghost,.primary,.danger,.chip,.iconbtn{font-size:11px;padding:10px 13px}
+  .avatar{width:40px;height:40px}
+
+  main{
+    width:100%;
+    padding:20px clamp(22px,3vw,36px) 130px!important;
+  }
+  .section{margin-top:26px}
+  .section-lined{padding-top:24px}
+  .section-title h2,.head h2{font-size:23px}
+  .section-title p,.head p{font-size:10.5px;line-height:1.4}
+  .section-title>span{font-size:9px}
+
+  .hero,.managerhero{padding:27px!important;border-radius:28px!important}
+  .hero h1{font-size:38px}.managerhero h1{font-size:37px}
+  .hero p,.managerhero p{font-size:12px!important;line-height:1.55}
+  .scorebox strong{font-size:44px}.scorebox span,.scorebox small{font-size:10px}
+
+  .role-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:13px!important}
+  .role-card,.role-card:first-child{grid-column:auto!important;min-height:170px!important;padding:19px!important}
+  .role-card .role-no{font-size:10px}.role-card h3{font-size:22px!important}.role-card p{font-size:11px!important;line-height:1.48}
+
+  .card{padding:18px}.metric strong{font-size:31px}.metric span{font-size:10px}.metric small{font-size:9px}
+  .menu-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:14px}
+  .photo{height:180px}
+  .menubody h3{font-size:16px}.menubody p{font-size:10px}.menumeta{font-size:9px}
+
+  .employee-compact{padding:17px 18px;gap:14px}
+  .employee-compact h3{font-size:17px}.employee-compact p{font-size:9.5px}
+  .employee-compact-score strong{font-size:29px}.employee-compact-score small{font-size:8px}
+  .mini-rating{font-size:9px;padding:5px 8px}
+  .employee-last{font-size:8px}
+  .ra-rating-scale-top{font-size:9px}.ra-rating-scale-top b{font-size:10px}
+
+  .employee-detail-head{padding:25px 27px}
+  .employee-detail-head h1{font-size:32px}.employee-detail-head p{font-size:10px}
+  .detail-total strong{font-size:40px}.detail-total span{font-size:9px}
+  .knowledge-card{padding:18px}.knowledge-head h3{font-size:20px}.knowledge-row b{font-size:11px}.knowledge-row small{font-size:8.5px}
+
+  .notification-card h3{font-size:19px}.notification-card p{font-size:11px;line-height:1.45}
+  .assigned-test h3{font-size:16px}.assigned-test p{font-size:10px}
+  .quiz-card h1{font-size:32px}.quiz-option{font-size:13px}
+  .modal{width:min(780px,calc(100vw - 44px))!important;max-height:88dvh!important}
+  .modal h2{font-size:27px}.modal p{font-size:11px}.fact b{font-size:11px}
+
+  .nav{
+    width:min(600px,calc(100% - 36px))!important;
+    bottom:max(12px,env(safe-area-inset-bottom))!important;
+  }
+  .nav button{min-height:54px!important;font-size:9px!important}.nav button b{font-size:18px!important}
+
+  .ra-tour-card{width:min(430px,calc(100vw - 36px))!important;max-height:min(48dvh,440px)!important}
+  .ra-tour-card h3{font-size:22px!important}.ra-tour-card p{font-size:13px!important;line-height:1.5}
+  .ra-tour-actions button{font-size:11px}
+}
+
+/* iPad portrait: employee cards need width more than density. */
+@media(min-width:768px) and (max-width:899px){
+  .team-grid{grid-template-columns:1fr!important}
+  .manager-panel{grid-template-columns:1fr!important}
+  .employee-compact{grid-template-columns:58px minmax(0,1fr) auto}
+}
+
+/* Larger tablets/landscape. */
+@media(min-width:900px) and (max-width:1180px){
+  .team-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+  .menu-grid{grid-template-columns:repeat(3,minmax(0,1fr))!important}
+}
+
+/* Short landscape viewports: avoid wasting vertical room and keep controls reachable. */
+@media(min-width:600px) and (max-height:760px){
+  .top{min-height:56px!important;padding-top:8px!important;padding-bottom:8px!important}
+  main{padding-top:12px!important}
+  .section{margin-top:18px!important}
+  .hero,.managerhero{padding-top:21px!important;padding-bottom:21px!important}
+  .pin-screen{min-height:auto!important;padding-top:10px!important;padding-bottom:24px!important}
+  .pin-dots{margin-top:18px!important;margin-bottom:17px!important}
+  .pin-keypad{gap:10px 18px!important}
+  .pin-key{width:68px!important;height:68px!important}
+  .ra-tour-card{max-height:58dvh!important}
+  .modal{max-height:94dvh!important}
+}
+
+/* Phone landscape — keep the app usable instead of letting fixed UI eat the screen. */
+@media(max-width:767px) and (orientation:landscape) and (max-height:500px){
+  .top{position:relative!important;min-height:50px!important;padding-top:6px!important;padding-bottom:6px!important}
+  main{padding-top:8px!important;padding-bottom:92px!important}
+  .nav{bottom:5px!important;max-width:560px!important}
+  .nav button{min-height:44px!important}
+  .modal{max-height:100dvh!important;border-radius:18px 18px 0 0!important}
+  .pin-screen{padding-top:4px!important;padding-bottom:84px!important}
+  .pin-panel h1{font-size:25px!important}.pin-sub{font-size:9px!important}.pin-dots{margin:11px 0!important}
+  .pin-keypad{width:290px!important;gap:6px 15px!important}.pin-key{width:54px!important;height:54px!important}.pin-key strong{font-size:22px!important}
+  .ra-tour-card{max-height:72dvh!important}
+}
+
+/* No motion-driven layout changes for users who ask the OS for reduced motion. */
+@media(prefers-reduced-motion:reduce){
+  .role-card,.menu-card,.employee-compact,.area-card,.ra-tour-spot,.ra-tour-card{transition:none!important}
+}
