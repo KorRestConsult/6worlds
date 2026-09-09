@@ -5,6 +5,21 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#141414">
 <title>KORREST AI — Департамент Сервиса</title>
+<style>
+  #korrestBoot{position:fixed;inset:0;z-index:30000;display:grid;place-items:center;background:#141414;color:#f7f3eb;opacity:1;visibility:visible;transition:opacity .42s ease,visibility .42s ease;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Arial,sans-serif}
+  #korrestBoot.kb-hide{opacity:0;visibility:hidden;pointer-events:none}
+  .kb-wrap{width:min(420px,calc(100vw - 52px));text-align:center;transform:translateY(-2vh)}
+  .kb-mark{width:76px;height:76px;margin:0 auto 24px;display:grid;place-items:center;border:1px solid rgba(247,243,235,.22);border-radius:23px;font-size:31px;font-weight:900;letter-spacing:-.06em;animation:kbIn .65s cubic-bezier(.2,.8,.2,1) both}
+  .kb-brand{font-size:clamp(28px,7vw,42px);line-height:1;font-weight:950;letter-spacing:-.055em;animation:kbIn .65s .06s cubic-bezier(.2,.8,.2,1) both}
+  .kb-product{margin-top:9px;font-size:10px;font-weight:800;letter-spacing:.22em;color:#b9ae9b;text-transform:uppercase;animation:kbIn .65s .12s cubic-bezier(.2,.8,.2,1) both}
+  .kb-rule{position:relative;height:1px;margin:32px auto 0;background:rgba(247,243,235,.14);overflow:hidden;width:min(260px,72vw)}
+  .kb-rule:after{content:"";position:absolute;inset:0 auto 0 0;width:42%;background:#f7f3eb;animation:kbLoad 1.15s ease-in-out infinite}
+  .kb-status{margin-top:13px;font-size:9px;font-weight:700;letter-spacing:.13em;color:#746d63;text-transform:uppercase}
+  @keyframes kbIn{from{opacity:0;transform:translateY(10px) scale(.98)}to{opacity:1;transform:none}}
+  @keyframes kbLoad{0%{transform:translateX(-110%)}60%{transform:translateX(155%)}100%{transform:translateX(260%)}}
+  @media(max-width:620px){.kb-wrap{width:calc(100vw - 36px)}.kb-mark{width:66px;height:66px;border-radius:20px;font-size:28px;margin-bottom:20px}.kb-product{font-size:9px;letter-spacing:.18em}}
+  @media(prefers-reduced-motion:reduce){.kb-mark,.kb-brand,.kb-product,.kb-rule:after{animation:none}}
+</style>
 <link rel="stylesheet" href="style.css?v=20260909-1210">
 <link rel="stylesheet" href="polish.css?v=20260909-1210">
 <link rel="stylesheet" href="viewport.css?v=20260909-1210">
@@ -25,6 +40,32 @@
 <link rel="stylesheet" href="about-contact.css?v=20260909-1305">
 </head>
 <body>
+<div id="korrestBoot" aria-label="Загрузка KORREST AI">
+  <div class="kb-wrap">
+    <div class="kb-mark">K</div>
+    <div class="kb-brand">KORREST AI</div>
+    <div class="kb-product">Департамент Сервиса</div>
+    <div class="kb-rule"></div>
+    <div class="kb-status">Подготавливаем демонстрацию</div>
+  </div>
+</div>
+<script>
+(function(){
+  const boot=document.getElementById('korrestBoot');
+  const started=Date.now();let closed=false;
+  function ready(){
+    if(closed||!boot)return;
+    const appReady=document.getElementById('root')?.children.length>0;
+    const introReady=document.getElementById('raProductIntro')?.classList.contains('show');
+    if(!appReady&&!introReady&&Date.now()-started<3500)return;
+    const wait=Math.max(0,650-(Date.now()-started));
+    closed=true;
+    setTimeout(()=>{boot.classList.add('kb-hide');setTimeout(()=>boot.remove(),460)},wait);
+  }
+  const probe=setInterval(()=>{ready();if(closed)clearInterval(probe)},60);
+  setTimeout(ready,3600);
+})();
+</script>
 <div class="app">
 <header class="top">
 <button class="brand" onclick="goRoles()"><span class="logo">K</span><span><b>KORREST AI</b><small>ДЕПАРТАМЕНТ СЕРВИСА · DEMO</small></span></button>
