@@ -1,13 +1,9 @@
-// First-visit product presentation. Separate from the guided tour.
+// Product presentation shown on every fresh page load. Separate from the guided tour.
 (function(){
   const ID='raProductIntro';
-  const SEEN_KEY='ra-product-intro-v1:seen';
   let root=null;
   let step=0;
-
-  function forceRequested(){
-    try{return new URLSearchParams(location.search).get('intro')==='1'}catch(e){return false}
-  }
+  let tourGuard=null;
 
   function suppressTour(){
     document.getElementById('raTour')?.classList.remove('show');
@@ -98,8 +94,7 @@
     </div>`;
   }
 
-  function show(force=false){
-    if(!force&&!forceRequested()&&localStorage.getItem(SEEN_KEY)==='1')return;
+  function show(){
     suppressTour();
     ensure();
     step=0;
@@ -107,16 +102,20 @@
     document.documentElement.classList.add('ra-intro-lock');
     document.body.classList.add('ra-intro-lock');
     render();
+    clearInterval(tourGuard);
+    tourGuard=setInterval(()=>{
+      if(root?.classList.contains('show'))suppressTour();
+    },120);
   }
 
   function hide(){
+    clearInterval(tourGuard);tourGuard=null;
     root?.classList.remove('show');
     document.documentElement.classList.remove('ra-intro-lock');
     document.body.classList.remove('ra-intro-lock');
   }
 
   function beginDemo(){
-    localStorage.setItem(SEEN_KEY,'1');
     hide();
     suppressTour();
     if(typeof window.restartAcademyTour==='function'){
@@ -128,6 +127,6 @@
     }catch(e){}
   }
 
-  window.RASalesIntro={show:()=>show(true),hide,reset:()=>localStorage.removeItem(SEEN_KEY)};
-  setTimeout(()=>show(false),90);
+  window.RASalesIntro={show,hide};
+  setTimeout(show,70);
 })();
