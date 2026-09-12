@@ -1,0 +1,115 @@
+schemaVersion: "1.0"
+id: korrest_pitch_v1
+title: KORREST AI sales presentation evaluation
+description: First-impression evaluation of the KORREST AI / «Департамент Сервиса» sales presentation.
+questions:
+  - id: understood_product
+    prompt: "Одним-двумя предложениями: что, по-вашему, продаёт KORREST AI и какую проблему решает?"
+    type: free_text
+    construct: product_understanding
+    required: true
+
+  - id: target_buyer
+    prompt: "Кому, по вашему впечатлению, в первую очередь предназначен этот продукт?"
+    type: single_choice
+    construct: target_buyer
+    required: true
+    options:
+      - id: owner
+        label: Собственнику ресторана или сети
+      - id: manager
+        label: Управляющему / операционному руководителю
+      - id: hr_training
+        label: HR / руководителю обучения
+      - id: employee
+        label: Линейному сотруднику
+      - id: unclear
+        label: Из презентации это непонятно
+
+  - id: problem_relevance
+    prompt: "Насколько описанная проблема выглядит для вас реальной и значимой?"
+    type: likert
+    construct: problem_relevance
+    required: true
+    minValue: 1
+    maxValue: 5
+
+  - id: value_clarity
+    prompt: "Насколько ясно вы поняли ценность продукта после четырёх слайдов?"
+    type: likert
+    construct: value_clarity
+    required: true
+    minValue: 1
+    maxValue: 5
+
+  - id: credibility
+    prompt: "Насколько вы доверяете обещанной ценности продукта на этом этапе, до просмотра демо?"
+    type: likert
+    construct: credibility
+    required: true
+    minValue: 1
+    maxValue: 5
+
+  - id: differentiation
+    prompt: "Чем этот продукт, по вашему мнению, отличается от обычной базы знаний, LMS, тестов в Google Forms или обучения в чатах? Если отличие неясно — так и скажите."
+    type: free_text
+    construct: differentiation
+    required: true
+
+  - id: strongest_slide
+    prompt: "Какой блок презентации сильнее всего подтолкнул вас продолжить?"
+    type: single_choice
+    construct: strongest_slide
+    required: true
+    options:
+      - id: problem
+        label: Проблема — сотрудник не знает, что продаёт
+      - id: system
+        label: Управляемый контур обучения и контроля
+      - id: roles
+        label: Ценность отдельно для собственника, управляющего и сотрудника
+      - id: demo
+        label: Переход к рабочему сценарию и демо
+      - id: none
+        label: Ни один блок не убедил
+
+  - id: biggest_objection
+    prompt: "Какое главное сомнение или возражение возникает у вас после этой презентации?"
+    type: free_text
+    construct: objection
+    required: true
+
+  - id: continue_demo
+    prompt: "Если бы вам прислали такую презентацию холодным сообщением, стали бы вы смотреть интерактивное демо дальше?"
+    type: single_choice
+    construct: demo_intent
+    required: true
+    options:
+      - id: definitely_yes
+        label: Да, точно посмотрю
+      - id: probably_yes
+        label: Скорее да
+      - id: probably_no
+        label: Скорее нет
+      - id: definitely_no
+        label: Нет
+
+  - id: contact_intent
+    prompt: "После презентации и обещания интерактивного демо насколько вероятно, что вы согласитесь на короткий разговор с автором, если демо подтвердит обещания?"
+    type: likert
+    construct: contact_intent
+    required: true
+    minValue: 1
+    maxValue: 5
+
+  - id: missing_proof
+    prompt: "Какого одного доказательства или факта вам больше всего не хватает, чтобы воспринимать предложение серьёзно?"
+    type: free_text
+    construct: missing_proof
+    required: true
+
+  - id: one_change
+    prompt: "Если изменить в этой презентации только одну вещь, чтобы вы с большей вероятностью продолжили просмотр, что именно нужно изменить?"
+    type: free_text
+    construct: improvement
+    required: true
