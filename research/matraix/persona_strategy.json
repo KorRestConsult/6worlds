@@ -4,6 +4,6 @@
   "dimensionFilters": {},
   "sampling": {
     "mode": "random",
-    "sampleSize": 20
+    "sampleSize": 100
   }
 }
