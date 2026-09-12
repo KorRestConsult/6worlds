@@ -1,0 +1,139 @@
+name: MatrAIx — KORREST research
+
+on:
+  workflow_dispatch:
+    inputs:
+      sample_size:
+        description: Number of simulated personas
+        required: false
+        default: "20"
+      model_name:
+        description: MatrAIx model name
+        required: false
+        default: "openai/gpt-4o-mini"
+  issues:
+    types: [opened]
+
+permissions:
+  contents: read
+  issues: write
+
+env:
+  MATRAIX_REPO: https://github.com/MatrAIx-ai/MatrAIx-Persona-8B.git
+  KORREST_TASK: application/tasks/korrest-sales-pitch
+
+jobs:
+  evaluate:
+    if: github.event_name == 'workflow_dispatch' || startsWith(github.event.issue.title, '[MATRAIX]')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+      SAMPLE_SIZE: ${{ github.event_name == 'workflow_dispatch' && inputs.sample_size || '20' }}
+      MODEL_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.model_name || 'openai/gpt-4o-mini' }}
+
+    steps:
+      - name: Checkout KORREST integration files
+        uses: actions/checkout@v4
+        with:
+          ref: matraix-integration
+          path: korrest
+
+      - name: Check API key
+        shell: bash
+        run: |
+          if [ -z "$OPENAI_API_KEY" ]; then
+            echo "OPENAI_API_KEY secret is not configured in this repository."
+            exit 2
+          fi
+
+      - name: Checkout MatrAIx
+        shell: bash
+        run: git clone --depth 1 "$MATRAIX_REPO" matraix
+
+      - name: Install uv and Python 3.12
+        uses: astral-sh/setup-uv@v6
+        with:
+          python-version: "3.12"
+
+      - name: Install MatrAIx
+        working-directory: matraix
+        shell: bash
+        run: |
+          uv venv --python 3.12
+          uv pip install -e .
+          uv pip install pytest pytest-asyncio httpx
+          uv pip install -e packages/playground
+          uv pip install -e packages/harbor-langsmith
+          uv pip install -e packages/rewardkit
+
+      - name: Build KORREST survey task
+        shell: bash
+        run: |
+          cp -R matraix/application/tasks/example-survey_product-feedback "matraix/$KORREST_TASK"
+          cp korrest/research/matraix/instruction.md "matraix/$KORREST_TASK/instruction.md"
+          cp korrest/research/matraix/context.md "matraix/$KORREST_TASK/input/context.md"
+          cp korrest/research/matraix/questionnaire.yaml "matraix/$KORREST_TASK/input/questionnaire.yaml"
+          cp korrest/research/matraix/persona_strategy.json "matraix/$KORREST_TASK/persona_strategy.json"
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('matraix') / Path('${{ env.KORREST_TASK }}') / 'task.toml'
+          text = p.read_text()
+          text = text.replace('application/product-feedback', 'application/korrest-sales-pitch')
+          text = text.replace('domain = "software"', 'domain = "restaurant operations"')
+          p.write_text(text)
+          PY
+
+      - name: Generate MatrAIx job
+        id: generate
+        working-directory: matraix
+        shell: bash
+        run: |
+          uv run python application/scripts/generate_application_job.py \
+            --task "$KORREST_TASK" \
+            --execution-mode auto \
+            --sample-size "$SAMPLE_SIZE" \
+            --model-name "$MODEL_NAME" | tee /tmp/matraix-generate.log
+
+          CONFIG=$(find configs/jobs/application-task-job-recipe -type f -name '*korrest*sales*pitch*.yaml' -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)
+          if [ -z "$CONFIG" ]; then
+            CONFIG=$(find configs/jobs/application-task-job-recipe -type f -name '*.yaml' -printf '%T@ %p\n' | sort -nr | head -1 | cut -d' ' -f2-)
+          fi
+          echo "config=$CONFIG" >> "$GITHUB_OUTPUT"
+          echo "Using $CONFIG"
+
+      - name: Run simulated study
+        working-directory: matraix
+        shell: bash
+        run: uv run matraix run -c "${{ steps.generate.outputs.config }}"
+
+      - name: Package results
+        if: always()
+        shell: bash
+        run: |
+          mkdir -p matraix-export
+          cp -R matraix/jobs matraix-export/jobs 2>/dev/null || true
+          cp /tmp/matraix-generate.log matraix-export/generate.log 2>/dev/null || true
+          cp -R korrest/research/matraix matraix-export/task-definition
+
+      - name: Upload study results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: korrest-matraix-results-${{ github.run_id }}
+          path: matraix-export
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Reply to trigger issue
+        if: always() && github.event_name == 'issues'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          if [ "${{ job.status }}" = "success" ]; then
+            BODY="MatrAIx study completed. Results are attached to GitHub Actions run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          else
+            BODY="MatrAIx study did not complete successfully. Check GitHub Actions run ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}."
+          fi
+          gh issue comment "${{ github.event.issue.number }}" --repo "${{ github.repository }}" --body "$BODY"
