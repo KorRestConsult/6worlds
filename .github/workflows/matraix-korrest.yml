@@ -31,6 +31,7 @@ jobs:
       OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
       SAMPLE_SIZE: ${{ github.event_name == 'workflow_dispatch' && inputs.sample_size || '20' }}
       MODEL_NAME: ${{ github.event_name == 'workflow_dispatch' && inputs.model_name || 'openai/gpt-4o-mini' }}
+      ISSUE_BODY: ${{ github.event.issue.body }}
 
     steps:
       - name: Checkout KORREST integration files
@@ -46,6 +47,23 @@ jobs:
             echo "OPENAI_API_KEY secret is not configured in this repository."
             exit 2
           fi
+
+      - name: Resolve issue run parameters
+        if: github.event_name == 'issues'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os, re
+          body = os.environ.get('ISSUE_BODY', '')
+          current = int(os.environ.get('SAMPLE_SIZE', '20'))
+          match = re.search(r'(?im)^\s*sample_size\s*:\s*(\d+)\s*$', body)
+          sample_size = int(match.group(1)) if match else current
+          if not 1 <= sample_size <= 500:
+              raise SystemExit(f'Invalid sample_size={sample_size}; expected 1..500')
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as f:
+              f.write(f'SAMPLE_SIZE={sample_size}\n')
+          print(f'Resolved SAMPLE_SIZE={sample_size}')
+          PY
 
       - name: Checkout MatrAIx
         shell: bash
