@@ -166,7 +166,16 @@
   }
   function placeVisible(el,step,steps){
     if(!active||!document.body.contains(el))return;
+    const root=document.getElementById('raTour');
     const r=el.getBoundingClientRect(),spot=document.querySelector('.ra-tour-spot'),card=document.querySelector('.ra-tour-card');
+    // Action steps must not put an invisible full-screen layer over the highlighted control.
+    // The tour card remains interactive, while taps/clicks pass through to the highlighted target.
+    if(root)root.style.pointerEvents=step.action?'none':'auto';
+    if(card)card.style.pointerEvents='auto';
+    if(step.action){
+      el.style.pointerEvents='auto';
+      el.style.touchAction='manipulation';
+    }
     const pad=8,left=Math.max(6,r.left-pad),top=Math.max(6,r.top-pad),width=Math.min(innerWidth-left-6,r.width+pad*2),height=Math.min(innerHeight-top-6,r.height+pad*2);
     Object.assign(spot.style,{left:left+'px',top:top+'px',width:Math.max(24,width)+'px',height:Math.max(24,height)+'px'});
     card.querySelector('h3').textContent=step.title;card.querySelector('p').textContent=step.text;
@@ -230,6 +239,21 @@
   document.addEventListener('gesturechange',blockTourGesture,{passive:false,capture:true});
   document.addEventListener('gestureend',blockTourGesture,{passive:false,capture:true});
 
+  // When an onboarding step asks the presenter to perform an action, close the
+  // overlay as soon as the highlighted target itself is pressed. This happens
+  // in capture phase, before app18/employee touch handlers check whether the
+  // tour is still open, so iPad/iPhone taps continue into the real control.
+  function finishActionStepFromTarget(e){
+    if(!active)return;
+    const steps=availableSteps(active),step=steps[index];
+    if(!step?.action)return;
+    const el=document.querySelector(step.sel);
+    if(!el||!e.target||!el.contains(e.target))return;
+    finish('done');
+  }
+  document.addEventListener('pointerdown',finishActionStepFromTarget,true);
+  document.addEventListener('touchend',finishActionStepFromTarget,{passive:true,capture:true});
+
   function start(key,force=false){
     ensureUI();if(!key)return;
     const steps=availableSteps(key);if(!steps.length)return;
@@ -249,7 +273,10 @@
     if(active){const m=seenMap();m[active]=true;saveSeen(m)}
     if(reason==='skip') setOptOut(true);
     document.querySelectorAll('.ra-next-action').forEach(x=>x.classList.remove('ra-next-action'));
-    active=null;unlockTourInteraction();document.getElementById('raTour')?.classList.remove('show');
+    active=null;unlockTourInteraction();
+    const root=document.getElementById('raTour');
+    root?.classList.remove('show');
+    if(root)root.style.pointerEvents='';
     if(reason!=='skip') setTimeout(()=>{
       pulseNextAction(step);
       // The highlighted action must stay tappable after the tour overlay closes.
